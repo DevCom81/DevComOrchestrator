@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiGet, apiSend } from "../../shared/api/client";
 import type {
+  ExecutionMode,
   ScenarioListDto,
   TechReviewDto,
   TechReviewListDto,
@@ -15,11 +16,18 @@ export function useTechReviewsQuery(projectId?: string) {
   });
 }
 
-export function useTechReviewQuery(reviewId: string) {
+export function useTechReviewQuery(reviewId: string, pollWhileRunning = false) {
   return useQuery({
     queryKey: ["tech-review", reviewId],
     queryFn: () => apiGet<TechReviewDto>(`/api/tech/reviews/${reviewId}`),
     enabled: Boolean(reviewId),
+    refetchInterval: (query) => {
+      if (!pollWhileRunning) {
+        return false;
+      }
+      const status = query.state.data?.status;
+      return status === "running" ? 2000 : false;
+    },
   });
 }
 
@@ -37,9 +45,11 @@ export function useCreateTechReviewMutation() {
       project_id: string;
       request_text: string;
       idempotency_key: string;
+      execution_mode: ExecutionMode;
     }) => apiSend<TechReviewDto>("/api/tech/reviews", "POST", body),
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ["tech-reviews"] });
+      void client.invalidateQueries({ queryKey: ["runtime"] });
     },
   });
 }
@@ -64,6 +74,7 @@ export function useRunTechPipelineMutation(reviewId: string) {
     onSuccess: (data) => {
       client.setQueryData(["tech-review", reviewId], data);
       void client.invalidateQueries({ queryKey: ["tech-reviews"] });
+      void client.invalidateQueries({ queryKey: ["runtime"] });
     },
   });
 }

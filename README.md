@@ -2,7 +2,9 @@
 
 Application locale pour orchestrer des spécialistes IA sous contrôle humain.
 
-**LOT 0** : fondation démo — HQ interactif, premier projet SQLite, aucune action externe.
+**LOT 0** : fondation démo — HQ interactif, premier projet SQLite.  
+**LOT 1** : Capability Registry, Permission Policy, Dispatcher démo déterministe, missions bornées (routage consultable, sans exécution IA).  
+**LOT 2** : Revue TECH fictive (scénarios versionnés, propositions, blocage critique, ADR démo).
 
 ## Prérequis
 

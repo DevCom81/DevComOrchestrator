@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["has_objection", "objection", "target_finding_id", "evidence_refs"],
+  "properties": {
+    "has_objection": {"type": "boolean"},
+    "objection": {"type": "string"},
+    "target_finding_id": {"type": "string"},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "verified_at": "2026-10-07",
+  "max_calls": 19,
+  "call_graph": "6 analyses + up to 6 critiques + up to 6 replies + 1 synthesis",
+  "models": {
+    "architecte": {"model": "gpt-6.1-sol", "effort": "low"},
+    "cyber": {"model": "gpt-6-luna", "effort": "none"},
+    "qa": {"model": "gpt-6-luna", "effort": "none"},
+    "devops": {"model": "gpt-6-luna", "effort": "none"},
+    "fullstack": {"model": "gpt-6-luna", "effort": "none"},
+    "sql_data": {"model": "gpt-6-luna", "effort": "none"},
+    "synthetiseur_tech": {"model": "gpt-6.1-sol", "effort": "low"}
+  },
+  "token_bounds": {
+    "analyze": {"max_input": 4000, "max_output": 1500},
+    "analyze_architecte": {"max_input": 4000, "max_output": 2500},
+    "critique": {"max_input": 8000, "max_output": 2500},
+    "critique_architecte": {"max_input": 8000, "max_output": 2500},
+    "reply": {"max_input": 6000, "max_output": 2500},
+    "reply_architecte": {"max_input": 6000, "max_output": 2500},
+    "synthesize": {"max_input": 12000, "max_output": 4000}
+  },
+  "apply_regional_uplift": true,
+  "reservation_input_rate": "max_uncached_or_cache_write",
+  "monthly_cap_eur_micros": 50000000,
+  "review_cap_eur_micros": 1000000,
+  "costing_notes": [
+    "Envelope computed for worst case 19 calls with conservative input rate and regional uplift.",
+    "If envelope_eur_micros > review_cap, real launch must be refused with explanation."
+  ]
+}

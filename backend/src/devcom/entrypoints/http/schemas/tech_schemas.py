@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -103,6 +104,34 @@ class AdrDto(BaseModel):
     demo_warning: str
 
 
+class PipelineStepDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_key: str
+    phase: str
+    agent_id: str
+    status: str
+    optional: bool
+    error_message: str | None
+    cost_status: str | None
+
+
+class UsageRecordDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_key: str
+    provider: str
+    model_id: str
+    input_tokens: int
+    output_tokens: int
+    reasoning_tokens: int
+    usd_micros: int
+    eur_micros: int
+    cost_status: str
+    result_status: str
+    created_at: str
+
+
 class TechReviewDto(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -129,6 +158,14 @@ class TechReviewDto(BaseModel):
     capability_registry_version: int | None
     permission_policy_version: int | None
     blocking_policy_version: int | None
+    execution_mode: str = "demo"
+    envelope_usd_micros: int | None = None
+    envelope_eur_micros: int | None = None
+    failure_message: str | None = None
+    frozen_plan: dict[str, Any] | None = None
+    steps: list[PipelineStepDto] = Field(default_factory=list)
+    usage: list[UsageRecordDto] = Field(default_factory=list)
+    reservation_status: str | None = None
 
 
 class TechReviewListDto(BaseModel):
@@ -157,6 +194,7 @@ class CreateTechReviewBody(BaseModel):
     project_id: str = Field(min_length=1, max_length=36)
     request_text: str = Field(min_length=1, max_length=2000)
     idempotency_key: str = Field(min_length=1, max_length=128)
+    execution_mode: str = Field(default="demo", pattern="^(demo|real)$")
 
 
 class SelectScenarioBody(BaseModel):
@@ -178,3 +216,13 @@ class DecideTechReviewBody(BaseModel):
     proposal_version: int = Field(ge=1)
     rationale: str = Field(min_length=1, max_length=2000)
     idempotency_key: str = Field(min_length=1, max_length=128)
+
+
+class BudgetSummaryDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    month_id: str
+    cap_eur_micros: int
+    confirmed_eur_micros: int
+    reserved_eur_micros: int
+    uncertain_eur_micros: int

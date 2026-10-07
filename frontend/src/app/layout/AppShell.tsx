@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 
+import { useDocumentTitle } from "../../features/runtime/useDocumentTitle";
 import { useRuntimeQuery } from "../../features/runtime/useRuntimeQuery";
 import { ErrorState } from "../../shared/ui/ErrorState";
 import { Spinner } from "../../shared/ui/Spinner";
@@ -8,6 +9,7 @@ import { TopBar } from "./TopBar";
 
 export function AppShell() {
   const runtime = useRuntimeQuery();
+  useDocumentTitle();
 
   if (runtime.isLoading) {
     return (

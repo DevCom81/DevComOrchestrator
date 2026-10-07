@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query, status
 
 from devcom.entrypoints.http.deps import ContainerDep
 from devcom.entrypoints.http.schemas.tech_schemas import (
+    BudgetSummaryDto,
     CreateTechReviewBody,
     DecideTechReviewBody,
     RunTechPipelineBody,
@@ -14,12 +15,19 @@ from devcom.entrypoints.http.schemas.tech_schemas import (
     TechReviewListDto,
 )
 from devcom.entrypoints.http.tech_presenter import review_to_dto
+from devcom.modules.billing.domain.period import budget_month_id
 from devcom.modules.missions.tech.application.create_review import CreateTechReviewCommand
 from devcom.modules.missions.tech.application.decide_review import DecideTechReviewCommand
 from devcom.modules.missions.tech.application.get_review import GetTechReviewQuery
 from devcom.modules.missions.tech.application.list_reviews import ListTechReviewsQuery
 from devcom.modules.missions.tech.application.run_pipeline import RunTechPipelineCommand
 from devcom.modules.missions.tech.application.select_scenario import SelectScenarioCommand
+from devcom.modules.missions.tech.application.start_real_review import (
+    StartRealTechReviewCommand,
+)
+from devcom.modules.missions.tech.domain.review import TechReview
+from devcom.modules.missions.tech.domain.status import ExecutionMode
+from devcom.shared.time import SystemClock
 
 router = APIRouter(tags=["tech"])
 
@@ -33,6 +41,19 @@ def list_scenarios(container: ContainerDep) -> ScenarioListDto:
     )
 
 
+@router.get("/api/budget/summary", response_model=BudgetSummaryDto)
+def budget_summary(container: ContainerDep) -> BudgetSummaryDto:
+    month_id = budget_month_id(SystemClock().now())
+    raw = container.budget_ledger.summary(month_id)
+    return BudgetSummaryDto(
+        month_id=str(raw["month_id"]),
+        cap_eur_micros=int(raw["cap_eur_micros"]),
+        confirmed_eur_micros=int(raw["confirmed_eur_micros"]),
+        reserved_eur_micros=int(raw["reserved_eur_micros"]),
+        uncertain_eur_micros=int(raw["uncertain_eur_micros"]),
+    )
+
+
 @router.get("/api/tech/reviews", response_model=TechReviewListDto)
 def list_reviews(
     container: ContainerDep,
@@ -40,7 +61,7 @@ def list_reviews(
 ) -> TechReviewListDto:
     items = container.list_tech_reviews.execute(ListTechReviewsQuery(project_id=project_id))
     return TechReviewListDto(
-        items=[review_to_dto(item, container.scenario_catalog) for item in items]
+        items=[_present(container, item) for item in items]
     )
 
 
@@ -55,15 +76,16 @@ def create_review(body: CreateTechReviewBody, container: ContainerDep) -> TechRe
             project_id=body.project_id,
             request_text=body.request_text,
             idempotency_key=body.idempotency_key,
+            execution_mode=ExecutionMode(body.execution_mode),
         )
     )
-    return review_to_dto(review, container.scenario_catalog)
+    return _present(container, review)
 
 
 @router.get("/api/tech/reviews/{review_id}", response_model=TechReviewDto)
 def get_review(review_id: str, container: ContainerDep) -> TechReviewDto:
     review = container.get_tech_review.execute(GetTechReviewQuery(review_id=review_id))
-    return review_to_dto(review, container.scenario_catalog)
+    return _present(container, review)
 
 
 @router.post("/api/tech/reviews/{review_id}/scenario", response_model=TechReviewDto)
@@ -75,7 +97,7 @@ def select_scenario(
     review = container.select_tech_scenario.execute(
         SelectScenarioCommand(review_id=review_id, scenario_id=body.scenario_id)
     )
-    return review_to_dto(review, container.scenario_catalog)
+    return _present(container, review)
 
 
 @router.post("/api/tech/reviews/{review_id}/run", response_model=TechReviewDto)
@@ -84,13 +106,22 @@ def run_pipeline(
     body: RunTechPipelineBody,
     container: ContainerDep,
 ) -> TechReviewDto:
-    review = container.run_tech_pipeline.execute(
+    review = container.get_tech_review.execute(GetTechReviewQuery(review_id=review_id))
+    if review.execution_mode == ExecutionMode.REAL:
+        started = container.start_real_tech_review.execute(
+            StartRealTechReviewCommand(
+                review_id=review_id,
+                idempotency_key=body.idempotency_key,
+            )
+        )
+        return _present(container, started)
+    ran = container.run_tech_pipeline.execute(
         RunTechPipelineCommand(
             review_id=review_id,
             idempotency_key=body.idempotency_key,
         )
     )
-    return review_to_dto(review, container.scenario_catalog)
+    return _present(container, ran)
 
 
 @router.post("/api/tech/reviews/{review_id}/decision", response_model=TechReviewDto)
@@ -108,4 +139,17 @@ def decide_review(
             idempotency_key=body.idempotency_key,
         )
     )
-    return review_to_dto(review, container.scenario_catalog)
+    return _present(container, review)
+
+
+def _present(container: ContainerDep, review: TechReview) -> TechReviewDto:
+    steps = container.step_store.list_steps(review.id)
+    usage = container.budget_ledger.list_usage(review.id)
+    reservation = container.budget_ledger.reservation_for(review.id)
+    return review_to_dto(
+        review,
+        container.scenario_catalog,
+        steps=steps,
+        usage=usage,
+        reservation=reservation,
+    )

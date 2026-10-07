@@ -14,7 +14,11 @@ from devcom.modules.missions.tech.application.pipeline_builder import build_pipe
 from devcom.modules.missions.tech.domain.blocking import BlockingPolicy
 from devcom.modules.missions.tech.domain.errors import TechNotFoundError, TechValidationError
 from devcom.modules.missions.tech.domain.review import TechReview
-from devcom.modules.missions.tech.domain.status import IDEM_RUN, TechReviewStatus
+from devcom.modules.missions.tech.domain.status import (
+    IDEM_RUN,
+    ExecutionMode,
+    TechReviewStatus,
+)
 from devcom.modules.missions.tech.ports.idempotency_store import IdempotencyStore
 from devcom.modules.missions.tech.ports.tech_review_repository import TechReviewRepository
 from devcom.shared.time import Clock
@@ -62,6 +66,8 @@ class RunTechPipeline:
 
     def _run(self, command: RunTechPipelineCommand, digest: str) -> TechReview:
         review = self._require(command.review_id)
+        if review.execution_mode != ExecutionMode.DEMO:
+            raise TechValidationError("use real start endpoint for real reviews")
         if review.status in {
             TechReviewStatus.AWAITING_DECISION,
             TechReviewStatus.DECIDED,

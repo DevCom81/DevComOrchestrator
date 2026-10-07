@@ -11,6 +11,7 @@ from devcom.bootstrap.settings import Settings
 from devcom.bootstrap.tech_wiring import TechServices, build_tech_services
 from devcom.modules.agents.adapters.static_agent_catalog import StaticAgentCatalog
 from devcom.modules.agents.application.list_agents import ListAgents
+from devcom.modules.billing.adapters.sqlalchemy_ledger import SqlAlchemyBudgetLedger
 from devcom.modules.missions.adapters.json_contracts import (
     load_capability_registry,
     load_demo_dispatch_rules,
@@ -29,6 +30,7 @@ from devcom.modules.missions.application.get_mission import GetMission
 from devcom.modules.missions.application.list_missions import ListMissions
 from devcom.modules.missions.application.orchestrator import MissionOrchestrator
 from devcom.modules.missions.tech.adapters.scenario_catalog import ScenarioCatalog
+from devcom.modules.missions.tech.adapters.sqlalchemy_steps import SqlAlchemyStepStore
 from devcom.modules.missions.tech.application.create_review import CreateTechReview
 from devcom.modules.missions.tech.application.decide_review import DecideTechReview
 from devcom.modules.missions.tech.application.get_review import GetTechReview
@@ -36,6 +38,8 @@ from devcom.modules.missions.tech.application.list_reviews import ListTechReview
 from devcom.modules.missions.tech.application.list_scenarios import ListTechScenarios
 from devcom.modules.missions.tech.application.run_pipeline import RunTechPipeline
 from devcom.modules.missions.tech.application.select_scenario import SelectScenario
+from devcom.modules.missions.tech.application.start_real_review import StartRealTechReview
+from devcom.modules.missions.tech.ports.llm_completion import LlmCompletionPort
 from devcom.modules.projects.adapters.sqlalchemy_project_repository import (
     SqlAlchemyProjectRepository,
 )
@@ -68,7 +72,12 @@ class ApplicationContainer:
     list_tech_reviews: ListTechReviews
     select_tech_scenario: SelectScenario
     run_tech_pipeline: RunTechPipeline
+    start_real_tech_review: StartRealTechReview
     decide_tech_review: DecideTechReview
+    budget_ledger: SqlAlchemyBudgetLedger
+    step_store: SqlAlchemyStepStore
+    openai_key_configured: bool
+    llm: LlmCompletionPort
 
 
 def build_engine(database_path: Path) -> Engine:
@@ -142,5 +151,10 @@ def _container(
         list_tech_reviews=tech.list_tech_reviews,
         select_tech_scenario=tech.select_tech_scenario,
         run_tech_pipeline=tech.run_tech_pipeline,
+        start_real_tech_review=tech.start_real_tech_review,
         decide_tech_review=tech.decide_tech_review,
+        budget_ledger=tech.budget_ledger,
+        step_store=tech.step_store,
+        openai_key_configured=tech.openai_key_configured,
+        llm=tech.llm,
     )

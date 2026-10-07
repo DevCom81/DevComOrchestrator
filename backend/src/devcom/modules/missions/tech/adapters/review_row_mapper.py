@@ -18,7 +18,7 @@ from devcom.modules.missions.tech.domain.artifacts import (
 )
 from devcom.modules.missions.tech.domain.errors import TechConflictError
 from devcom.modules.missions.tech.domain.review import TechReview
-from devcom.modules.missions.tech.domain.status import TechReviewStatus
+from devcom.modules.missions.tech.domain.status import ExecutionMode, TechReviewStatus
 
 
 def to_row(review: TechReview) -> TechReviewRow:
@@ -47,6 +47,12 @@ def to_row(review: TechReview) -> TechReviewRow:
         permission_policy_version=review.permission_policy_version,
         blocking_policy_version=review.blocking_policy_version,
         create_idempotency_key=review.create_idempotency_key,
+        execution_mode=review.execution_mode.value,
+        plan_json=review.plan_json,
+        envelope_usd_micros=review.envelope_usd_micros,
+        envelope_eur_micros=review.envelope_eur_micros,
+        failure_message=review.failure_message,
+        frozen_models_json=review.frozen_models_json,
     )
 
 
@@ -87,6 +93,12 @@ def from_row(session: Session, row: TechReviewRow) -> TechReview:
         permission_policy_version=row.permission_policy_version,
         blocking_policy_version=row.blocking_policy_version,
         create_idempotency_key=row.create_idempotency_key,
+        execution_mode=ExecutionMode(row.execution_mode or "demo"),
+        plan_json=row.plan_json,
+        envelope_usd_micros=row.envelope_usd_micros,
+        envelope_eur_micros=row.envelope_eur_micros,
+        failure_message=row.failure_message,
+        frozen_models_json=row.frozen_models_json,
     )
 
 

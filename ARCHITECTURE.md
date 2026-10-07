@@ -206,18 +206,24 @@ Aucun stockage ni affichage d'une chaîne de pensée privée. Conserver les conc
 
 `awaiting_approval` est réservé aux lots ultérieurs lorsqu'une action EXTERNAL concrète (cible, contenu, hash) est prête pour un GO. Transitions LOT 1 testées : `draft` → `awaiting_clarification` \| `routed` \| `blocked_authorization` ; `awaiting_clarification` → `routed` \| `blocked_authorization` \| `awaiting_clarification` après réponse valide.
 
-### Agrégat TechReview (LOT 2)
+### Agrégat TechReview (LOT 2–3)
 
 Distinct des missions de routage. Réutilise le Capability Registry et la Permission Policy ; pas de second orchestrateur. Les missions LOT 1 ne lancent pas de revue TECH.
 
 | État | Signification |
 |---|---|
-| `selecting_scenario` | Revue créée ; scénario fictif à confirmer explicitement |
-| `ready_to_run` | Scénario + snapshot projet figés ; pipeline non encore exécuté |
-| `awaiting_decision` | Résultats déterministes persistés ; propositions (éventuellement bloquées) consultables |
-| `decided` | Décision humaine + ADR de démonstration (sans GO d'implémentation) |
+| `selecting_scenario` | Revue démo créée ; scénario fictif à confirmer explicitement |
+| `ready_to_run` | Snapshot (et scénario démo) figés ; pipeline non encore exécuté |
+| `running` | Revue réelle en cours sous runner supervisé (polling UI) |
+| `awaiting_decision` | Résultats persistés ; propositions consultables |
+| `failed_partial` | Échec partiel ; artefacts valides conservés ; pas de décision complète |
+| `blocked_uncertain` | Dépendance ou appel interrompu marqué incertain ; pas de rejeu auto |
+| `paused_budget` | Dépassement de réserve ; nouveaux appels bloqués |
+| `decided` | Décision humaine + ADR (sans GO d'implémentation) |
 
-Pipeline synchrone : validation complète des résultats avant écriture atomique. Idempotence sur création, lancement et décision. Politique de blocage versionnée (`contracts/tech/blocking_policy.json`) ; aucune levée de risque critique dans le LOT 2.
+**Démo (LOT 2)** : pipeline synchrone déterministe ; scénarios contractuels ; inchangé.
+
+**Réel (LOT 3)** : OpenAI Responses ; graphe 6+6+6+1 (réponses sautées sans objection) ; enveloppe réservée avant lancement ; runner in-process supervisé ; une revue réelle active par process ; GET ne déclenche aucun appel. Tarifs/FX versionnés sous `contracts/billing/`. Idempotence création/lancement/décision. Politique de blocage versionnée ; aucune levée de risque critique.
 
 États agent : idle, queued, working, waiting_human, completed, warning, error, offline. L'UI montre des étapes réelles ; pas de pourcentage de réflexion inventé.
 
@@ -237,11 +243,9 @@ Contexte minimal par domaine, budget de tokens et références de sources. Le ca
 
 ## 9. Budget et mesure
 
-Plafond initial configurable : 50 € par mois pour les dépenses mesurées par l'application ; sous-budgets par agent, mission et recherche. Montants en unités monétaires entières suffisamment fines, jamais float. Prix en devise fournisseur, conversion datée explicite et estimation des taxes séparée si nécessaire.
+Plafond LOT 3 : **50 €/mois** et **1 €/revue** (µEUR entiers). Prix USD fournisseur + conversion EUR datée (Frankfurter/ECB + marge FX 5 %) ; uplift régional 10 % sur l’enveloppe. Réservation entrée = max(uncached, cache_write). `reasoning_tokens` sont un sous-ensemble de `output_tokens` — jamais additionnés deux fois.
 
-Avant tout appel : réserver atomiquement le coût majoré selon tokens maximum, sortie maximum, outils et tarifs connus. Concurrence incluse. Refuser si le plafond restant est insuffisant. Après appel : rapprocher avec l'usage réel et libérer le reliquat. Prix inconnu ou appel non bornable : suspension et choix humain.
-
-Séparer coût estimé, réservé, confirmé et incertain. Après timeout, conserver une réserve conservatrice. Pas de retries illimités ni boucle de débat. Seuils de notification et bouton pause global.
+Avant lancement d’une revue réelle : réserver l’enveloppe max du graphe (19 appels). Concurrence incluse ; les revues ne partagent pas le même reliquat. Après chaque appel : enregistrer l’usage (y compris résultat invalide), rapprocher confirmé/réservé, conserver l’incertain jusqu’à rapprochement explicite. Mois budgétaire `Europe/Paris` ; période d’origine conservée si un appel traverse un changement de mois. Dépassement de réserve : enregistrer le réel, alerter, bloquer les nouveaux appels. Pas de retries payants automatiques.
 
 Le plafond applicatif protège les appels qu'il pilote ; il ne garantit pas le total d'une facture fournisseur comprenant d'autres clients, taxes ou ajustements. Utiliser des clés/projets dédiés et les limites fournisseur quand disponibles. Les budgets annoncés précédemment sont des hypothèses, pas des tarifs validés.
 

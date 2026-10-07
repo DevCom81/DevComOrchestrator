@@ -56,6 +56,14 @@
   outline-offset: 2px;
 }
 
+.tech-cost-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.92rem;
+}
+
 .tech-scenario-fieldset {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0.8rem;
@@ -71,19 +79,69 @@
   cursor: pointer;
 }
 
-.tech-analysis-grid,
+.tech-analysis-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .tech-analysis-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .tech-analysis-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .tech-proposal-grid {
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .tech-proposal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .tech-analysis-card,
 .tech-proposal {
-  padding: 0.85rem;
+  padding: 0.95rem 1rem;
   border-radius: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.15);
+  min-width: 0;
+}
+
+.tech-analysis-card ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tech-empty-state {
+  margin: 0.35rem 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-style: italic;
+}
+
+.tech-status-banner {
+  padding: 0.85rem 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(46, 196, 182, 0.35);
+  background: rgba(46, 196, 182, 0.08);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tech-status-banner p {
+  margin: 0;
 }
 
 .tech-proposal--active {

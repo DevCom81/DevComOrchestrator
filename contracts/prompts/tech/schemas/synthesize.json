@@ -1,0 +1,54 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["summary", "disagreements", "proposals"],
+  "properties": {
+    "summary": {"type": "string"},
+    "disagreements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "summary", "related_finding_ids", "related_challenge_ids"],
+        "properties": {
+          "id": {"type": "string"},
+          "summary": {"type": "string"},
+          "related_finding_ids": {"type": "array", "items": {"type": "string"}},
+          "related_challenge_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "proposals": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "solution",
+          "advantages",
+          "risks",
+          "tradeoffs",
+          "validations",
+          "effort",
+          "related_finding_ids",
+          "accepts_finding_ids"
+        ],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "solution": {"type": "string"},
+          "advantages": {"type": "array", "items": {"type": "string"}},
+          "risks": {"type": "array", "items": {"type": "string"}},
+          "tradeoffs": {"type": "array", "items": {"type": "string"}},
+          "validations": {"type": "array", "items": {"type": "string"}},
+          "effort": {"type": "string", "enum": ["S", "M", "L"]},
+          "related_finding_ids": {"type": "array", "items": {"type": "string"}},
+          "accepts_finding_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

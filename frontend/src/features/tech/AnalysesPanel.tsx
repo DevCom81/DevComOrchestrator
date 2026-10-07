@@ -1,10 +1,13 @@
 import type { ChallengeDto, SpecialistAnalysisDto, SynthesisDto } from "./techTypes";
+import { TECH_SPECIALIST_IDS } from "./techTypes";
+import { SpecialistCard } from "./SpecialistCard";
 
 type Props = {
   analyses: SpecialistAnalysisDto[];
   challenges: ChallengeDto[];
   synthesis: SynthesisDto | null;
   agentNames: Map<string, string>;
+  showSlots: boolean;
 };
 
 export function AnalysesPanel({
@@ -12,26 +15,24 @@ export function AnalysesPanel({
   challenges,
   synthesis,
   agentNames,
+  showSlots,
 }: Props) {
-  if (analyses.length === 0) {
+  if (!showSlots && analyses.length === 0 && !synthesis) {
     return null;
   }
+  const byId = new Map(analyses.map((item) => [item.agent_id, item]));
+
   return (
     <section className="tech-panel" aria-label="Résultats des spécialistes">
       <h3>Six spécialistes</h3>
       <div className="tech-analysis-grid">
-        {analyses.map((analysis) => (
-          <article key={analysis.agent_id} className="tech-analysis-card">
-            <h4>{agentNames.get(analysis.agent_id) ?? analysis.agent_id}</h4>
-            <p className="muted">{analysis.capability_id}</p>
-            <ul>
-              {analysis.findings.map((finding) => (
-                <li key={finding.id}>
-                  <strong>{finding.risk_level}</strong> — {finding.observation}
-                </li>
-              ))}
-            </ul>
-          </article>
+        {TECH_SPECIALIST_IDS.map((agentId) => (
+          <SpecialistCard
+            key={agentId}
+            agentId={agentId}
+            displayName={agentNames.get(agentId) ?? agentId}
+            analysis={byId.get(agentId)}
+          />
         ))}
       </div>
 
@@ -49,16 +50,16 @@ export function AnalysesPanel({
                   sur {challenge.target_finding_id}
                 </p>
                 <p>{challenge.objection}</p>
-                <p className="muted">Réponse : {challenge.author_response}</p>
+                <p className="muted">Réponse : {challenge.author_response || "—"}</p>
               </li>
             ))}
           </ul>
         </>
       ) : null}
 
+      <h3>Synthèse</h3>
       {synthesis ? (
         <>
-          <h3>Synthèse</h3>
           <p>{synthesis.summary}</p>
           {synthesis.disagreements.length > 0 ? (
             <ul>
@@ -66,9 +67,15 @@ export function AnalysesPanel({
                 <li key={item.id}>{item.summary}</li>
               ))}
             </ul>
-          ) : null}
+          ) : (
+            <p className="muted">Aucun désaccord explicite dans la synthèse.</p>
+          )}
         </>
-      ) : null}
+      ) : (
+        <p className="tech-empty-state" role="status">
+          Synthèse absente — pipeline non terminé ou échec avant synthèse.
+        </p>
+      )}
     </section>
   );
 }

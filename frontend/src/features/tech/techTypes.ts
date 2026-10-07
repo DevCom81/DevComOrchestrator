@@ -1,8 +1,14 @@
 export type TechReviewStatus =
   | "selecting_scenario"
   | "ready_to_run"
+  | "running"
   | "awaiting_decision"
+  | "failed_partial"
+  | "blocked_uncertain"
+  | "paused_budget"
   | "decided";
+
+export type ExecutionMode = "demo" | "real";
 
 export type FindingDto = {
   id: string;
@@ -84,6 +90,30 @@ export type AdrDto = {
   demo_warning: string;
 };
 
+export type PipelineStepDto = {
+  step_key: string;
+  phase: string;
+  agent_id: string;
+  status: string;
+  optional: boolean;
+  error_message: string | null;
+  cost_status: string | null;
+};
+
+export type UsageRecordDto = {
+  step_key: string;
+  provider: string;
+  model_id: string;
+  input_tokens: number;
+  output_tokens: number;
+  reasoning_tokens: number;
+  usd_micros: number;
+  eur_micros: number;
+  cost_status: string;
+  result_status: string;
+  created_at: string;
+};
+
 export type TechReviewDto = {
   id: string;
   project_id: string;
@@ -108,6 +138,14 @@ export type TechReviewDto = {
   capability_registry_version: number | null;
   permission_policy_version: number | null;
   blocking_policy_version: number | null;
+  execution_mode: ExecutionMode;
+  envelope_usd_micros: number | null;
+  envelope_eur_micros: number | null;
+  failure_message: string | null;
+  frozen_plan: Record<string, unknown> | null;
+  steps: PipelineStepDto[];
+  usage: UsageRecordDto[];
+  reservation_status: string | null;
 };
 
 export type TechReviewListDto = { items: TechReviewDto[] };
@@ -118,19 +156,41 @@ export type ScenarioListDto = { items: ScenarioDto[]; disclaimer: string };
 export const REQUEST_MAX = 2000;
 export const RATIONALE_MAX = 2000;
 
+/** Spécialistes attendus d'une revue TECH (ordre d'affichage). */
+export const TECH_SPECIALIST_IDS = [
+  "architecte",
+  "cyber",
+  "qa",
+  "devops",
+  "fullstack",
+  "sql_data",
+] as const;
+
 export function techStatusLabel(status: TechReviewStatus): string {
   switch (status) {
     case "selecting_scenario":
       return "Choix du scénario";
     case "ready_to_run":
       return "Prête à lancer";
+    case "running":
+      return "En cours";
     case "awaiting_decision":
       return "Décision requise";
+    case "failed_partial":
+      return "Échec partiel";
+    case "blocked_uncertain":
+      return "Bloquée (incertain)";
+    case "paused_budget":
+      return "Pause budget";
     case "decided":
       return "Décidée";
     default:
       return status;
   }
+}
+
+export function formatEurMicros(micros: number): string {
+  return `${(micros / 1_000_000).toFixed(6)} €`;
 }
 
 export function newIdempotencyKey(prefix: string): string {

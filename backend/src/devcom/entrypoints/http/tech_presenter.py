@@ -1,16 +1,21 @@
 from __future__ import annotations
 
+import json
+from typing import Any
+
 from devcom.entrypoints.http.schemas.tech_schemas import (
     AdrDto,
     ChallengeDto,
     DecisionDto,
     DisagreementDto,
     FindingDto,
+    PipelineStepDto,
     ProposalDto,
     SnapshotDto,
     SpecialistAnalysisDto,
     SynthesisDto,
     TechReviewDto,
+    UsageRecordDto,
 )
 from devcom.modules.missions.tech.adapters.scenario_catalog import ScenarioCatalog
 from devcom.modules.missions.tech.application.list_scenarios import suggested_scenario_id
@@ -23,10 +28,18 @@ from devcom.modules.missions.tech.domain.artifacts import (
 from devcom.modules.missions.tech.domain.review import TechReview
 
 
-def review_to_dto(review: TechReview, catalog: ScenarioCatalog) -> TechReviewDto:
+def review_to_dto(
+    review: TechReview,
+    catalog: ScenarioCatalog,
+    *,
+    steps: list[dict[str, Any]] | None = None,
+    usage: list[dict[str, Any]] | None = None,
+    reservation: dict[str, Any] | None = None,
+) -> TechReviewDto:
     suggested = None
-    if review.scenario_id is None:
+    if review.scenario_id is None and review.execution_mode.value == "demo":
         suggested = suggested_scenario_id(catalog, review.request_text)
+    frozen = json.loads(review.frozen_models_json) if review.frozen_models_json else None
     return TechReviewDto(
         id=review.id,
         project_id=review.project_id,
@@ -51,7 +64,27 @@ def review_to_dto(review: TechReview, catalog: ScenarioCatalog) -> TechReviewDto
         capability_registry_version=review.capability_registry_version,
         permission_policy_version=review.permission_policy_version,
         blocking_policy_version=review.blocking_policy_version,
+        **_real_fields(review, frozen, steps, usage, reservation),
     )
+
+
+def _real_fields(
+    review: TechReview,
+    frozen: dict[str, Any] | None,
+    steps: list[dict[str, Any]] | None,
+    usage: list[dict[str, Any]] | None,
+    reservation: dict[str, Any] | None,
+) -> dict[str, Any]:
+    return {
+        "execution_mode": review.execution_mode.value,
+        "envelope_usd_micros": review.envelope_usd_micros,
+        "envelope_eur_micros": review.envelope_eur_micros,
+        "failure_message": review.failure_message,
+        "frozen_plan": frozen,
+        "steps": [_step(item) for item in steps or []],
+        "usage": [_usage(item) for item in usage or []],
+        "reservation_status": None if reservation is None else str(reservation["status"]),
+    }
 
 
 def _snapshot(review: TechReview) -> SnapshotDto | None:
@@ -160,4 +193,32 @@ def _adr(review: TechReview) -> AdrDto | None:
         title=adr.title,
         body=adr.body,
         demo_warning=adr.demo_warning,
+    )
+
+
+def _step(item: dict[str, Any]) -> PipelineStepDto:
+    return PipelineStepDto(
+        step_key=str(item["step_key"]),
+        phase=str(item["phase"]),
+        agent_id=str(item["agent_id"]),
+        status=str(item["status"]),
+        optional=bool(item["optional"]),
+        error_message=item.get("error_message"),
+        cost_status=item.get("cost_status"),
+    )
+
+
+def _usage(item: dict[str, Any]) -> UsageRecordDto:
+    return UsageRecordDto(
+        step_key=str(item["step_key"]),
+        provider=str(item["provider"]),
+        model_id=str(item["model_id"]),
+        input_tokens=int(item["input_tokens"]),
+        output_tokens=int(item["output_tokens"]),
+        reasoning_tokens=int(item["reasoning_tokens"]),
+        usd_micros=int(item["usd_micros"]),
+        eur_micros=int(item["eur_micros"]),
+        cost_status=str(item["cost_status"]),
+        result_status=str(item["result_status"]),
+        created_at=str(item["created_at"]),
     )

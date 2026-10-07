@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findings", "unknowns", "out_of_scope_findings"],
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "domain",
+          "observation",
+          "evidence_refs",
+          "risk_level",
+          "recommendation",
+          "hypotheses"
+        ],
+        "properties": {
+          "id": {"type": "string"},
+          "domain": {"type": "string"},
+          "observation": {"type": "string"},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}},
+          "risk_level": {"type": "string", "enum": ["low", "medium", "critical"]},
+          "recommendation": {"type": "string"},
+          "hypotheses": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "unknowns": {"type": "array", "items": {"type": "string"}},
+    "out_of_scope_findings": {"type": "array", "items": {"type": "string"}}
+  }
+}

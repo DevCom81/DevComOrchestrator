@@ -27,13 +27,27 @@ class Settings(BaseSettings):
     version: str = "0.1.0"
     contracts_root: Path = Field(default_factory=lambda: REPO_ROOT / "contracts")
     frontend_dist: Path = Field(default_factory=lambda: REPO_ROOT / "frontend" / "dist")
+    monthly_budget_eur_micros: int = 50_000_000
+    review_budget_eur_micros: int = 1_000_000
+    llm_adapter: str = "openai"
 
     @field_validator("mode")
     @classmethod
-    def demo_only(cls, value: str) -> str:
-        if value != "demo":
-            raise ValueError("lot 0–2 support DEVCOM_MODE=demo only")
+    def allowed_modes(cls, value: str) -> str:
+        if value not in {"demo", "real"}:
+            raise ValueError("DEVCOM_MODE must be demo or real")
         return value
+
+    @field_validator("llm_adapter")
+    @classmethod
+    def allowed_llm(cls, value: str) -> str:
+        if value not in {"openai", "fake"}:
+            raise ValueError("DEVCOM_LLM_ADAPTER must be openai or fake")
+        return value
+
+    @property
+    def real_mode_enabled(self) -> bool:
+        return self.mode == "real"
 
     @property
     def agents_contracts_dir(self) -> Path:
@@ -58,6 +72,26 @@ class Settings(BaseSettings):
     @property
     def tech_blocking_policy_path(self) -> Path:
         return self.contracts_root / "tech" / "blocking_policy.json"
+
+    @property
+    def billing_dir(self) -> Path:
+        return self.contracts_root / "billing"
+
+    @property
+    def openai_rates_path(self) -> Path:
+        return self.billing_dir / "openai_rates_2026-10-07.json"
+
+    @property
+    def fx_path(self) -> Path:
+        return self.billing_dir / "fx_usd_eur.json"
+
+    @property
+    def tech_call_bounds_path(self) -> Path:
+        return self.billing_dir / "tech_real_call_bounds.json"
+
+    @property
+    def tech_prompts_root(self) -> Path:
+        return self.contracts_root / "prompts" / "tech"
 
     @property
     def database_path(self) -> Path:

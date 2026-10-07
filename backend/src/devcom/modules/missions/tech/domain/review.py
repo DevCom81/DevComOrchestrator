@@ -25,6 +25,7 @@ from devcom.modules.missions.tech.domain.status import (
     RATIONALE_MIN,
     REQUEST_MAX,
     REQUEST_MIN,
+    ExecutionMode,
     TechReviewStatus,
 )
 
@@ -54,6 +55,12 @@ class TechReview:
     permission_policy_version: int | None = None
     blocking_policy_version: int | None = None
     create_idempotency_key: str | None = None
+    execution_mode: ExecutionMode = ExecutionMode.DEMO
+    plan_json: str | None = None
+    envelope_usd_micros: int | None = None
+    envelope_eur_micros: int | None = None
+    failure_message: str | None = None
+    frozen_models_json: str | None = None
 
     @classmethod
     def create(
@@ -65,19 +72,26 @@ class TechReview:
         now: datetime,
         unmatched: bool,
         create_key: str,
+        execution_mode: ExecutionMode = ExecutionMode.DEMO,
     ) -> TechReview:
         text = _bounded(request_text, REQUEST_MIN, REQUEST_MAX, "request")
         stamp = _utc(now)
+        initial = (
+            TechReviewStatus.SELECTING_SCENARIO
+            if execution_mode == ExecutionMode.DEMO
+            else TechReviewStatus.READY_TO_RUN
+        )
         return cls(
             id=str(uuid4()),
             project_id=project_id,
             request_text=text,
-            status=TechReviewStatus.SELECTING_SCENARIO,
+            status=initial,
             created_at=stamp,
             updated_at=stamp,
             disclaimer=disclaimer,
             unmatched_request=unmatched,
             create_idempotency_key=create_key,
+            execution_mode=execution_mode,
         )
 
     def confirm_scenario(
@@ -89,6 +103,8 @@ class TechReview:
         note: str | None,
         now: datetime,
     ) -> None:
+        if self.execution_mode != ExecutionMode.DEMO:
+            raise TechConflictError("scenario selection is demo-only")
         if self.status not in {
             TechReviewStatus.SELECTING_SCENARIO,
             TechReviewStatus.READY_TO_RUN,
@@ -101,6 +117,16 @@ class TechReview:
         self.snapshot = snapshot
         self.scenario_label_note = note
         self.status = TechReviewStatus.READY_TO_RUN
+        self.updated_at = _utc(now)
+
+    def mark_running(self, now: datetime) -> None:
+        if self.status == TechReviewStatus.RUNNING:
+            return
+        if self.status != TechReviewStatus.READY_TO_RUN:
+            raise TechConflictError("review is not ready to run")
+        if self.snapshot is None:
+            raise TechConflictError("snapshot missing")
+        self.status = TechReviewStatus.RUNNING
         self.updated_at = _utc(now)
 
     def apply_pipeline_results(
@@ -117,9 +143,12 @@ class TechReview:
             return
         if self.status == TechReviewStatus.DECIDED:
             raise TechConflictError("review already decided")
-        if self.status != TechReviewStatus.READY_TO_RUN:
+        allowed = {TechReviewStatus.READY_TO_RUN, TechReviewStatus.RUNNING}
+        if self.status not in allowed:
             raise TechConflictError("review is not ready to run")
-        if self.snapshot is None or self.scenario_id is None:
+        if self.snapshot is None:
+            raise TechConflictError("snapshot missing")
+        if self.execution_mode == ExecutionMode.DEMO and self.scenario_id is None:
             raise TechConflictError("scenario snapshot missing")
         self.analyses = list(analyses)
         self.challenges = list(challenges)

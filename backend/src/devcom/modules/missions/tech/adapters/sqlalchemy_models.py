@@ -41,6 +41,36 @@ class TechReviewRow(Base):
         nullable=True,
         unique=True,
     )
+    execution_mode: Mapped[str] = mapped_column(String(16), nullable=False, default="demo")
+    plan_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    envelope_usd_micros: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    envelope_eur_micros: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    failure_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    frozen_models_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class TechPipelineStepRow(Base):
+    __tablename__ = "tech_pipeline_steps"
+    __table_args__ = (
+        UniqueConstraint("review_id", "step_key", name="uq_tech_pipeline_steps"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    review_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("tech_reviews.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    step_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    phase: Mapped[str] = mapped_column(String(32), nullable=False)
+    agent_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    optional: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    result_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    cost_status: Mapped[str | None] = mapped_column(String(32), nullable=True)
+
 
 
 class TechDecisionRow(Base):

@@ -4,8 +4,17 @@ from enum import StrEnum
 class TechReviewStatus(StrEnum):
     SELECTING_SCENARIO = "selecting_scenario"
     READY_TO_RUN = "ready_to_run"
+    RUNNING = "running"
     AWAITING_DECISION = "awaiting_decision"
+    FAILED_PARTIAL = "failed_partial"
+    BLOCKED_UNCERTAIN = "blocked_uncertain"
+    PAUSED_BUDGET = "paused_budget"
     DECIDED = "decided"
+
+
+class ExecutionMode(StrEnum):
+    DEMO = "demo"
+    REAL = "real"
 
 
 class EffortBand(StrEnum):

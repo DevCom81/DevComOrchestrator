@@ -1,0 +1,13 @@
+{
+  "base": "USD",
+  "quote": "EUR",
+  "rate": "0.88739",
+  "rate_date": "2026-10-06",
+  "source": "https://api.frankfurter.app/latest?from=USD&to=EUR",
+  "verified_at": "2026-10-07",
+  "fx_margin_ratio": "0.05",
+  "notes": [
+    "Effective reservation rate = rate * (1 + fx_margin_ratio).",
+    "Re-verified 2026-10-07 via Frankfurter/ECB: date=2026-10-06 rate=0.88739 EUR per USD."
+  ]
+}

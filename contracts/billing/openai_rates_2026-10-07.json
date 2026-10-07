@@ -1,0 +1,37 @@
+{
+  "provider": "openai",
+  "verified_at": "2026-10-07",
+  "source_urls": [
+    "https://developers.openai.com/api/docs/pricing",
+    "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "https://developers.openai.com/api/docs/models/gpt-6.1-sol"
+  ],
+  "processing": "standard_short_context",
+  "currency": "USD",
+  "models": {
+    "gpt-6-luna": {
+      "input_uncached_usd_per_mtok": "0.10",
+      "input_cached_usd_per_mtok": "0.01",
+      "cache_write_usd_per_mtok": "0.125",
+      "output_usd_per_mtok": "0.50",
+      "supports_structured_outputs": true,
+      "reasoning_efforts": ["none", "low", "medium", "high", "xhigh", "max"],
+      "max_output_tokens_api": 128000
+    },
+    "gpt-6.1-sol": {
+      "input_uncached_usd_per_mtok": "2.00",
+      "input_cached_usd_per_mtok": "0.10",
+      "cache_write_usd_per_mtok": "2.50",
+      "output_usd_per_mtok": "10.00",
+      "supports_structured_outputs": true,
+      "reasoning_efforts": ["low", "medium", "high", "xhigh", "max"],
+      "max_output_tokens_api": 128000
+    }
+  },
+  "regional_uplift_ratio": "0.10",
+  "notes": [
+    "Reservation uses max(input_uncached, cache_write) per input token; cache hits are never assumed to authorize a call.",
+    "Reasoning tokens are billed inside output_tokens and must not be double-counted.",
+    "Long-context (>272K input) multipliers are out of scope for LOT 3 bounded reviews."
+  ]
+}
