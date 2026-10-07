@@ -53,6 +53,7 @@ def to_row(review: TechReview) -> TechReviewRow:
         envelope_eur_micros=review.envelope_eur_micros,
         failure_message=review.failure_message,
         frozen_models_json=review.frozen_models_json,
+        code_snapshot_id=review.code_snapshot_id,
     )
 
 
@@ -99,6 +100,7 @@ def from_row(session: Session, row: TechReviewRow) -> TechReview:
         envelope_eur_micros=row.envelope_eur_micros,
         failure_message=row.failure_message,
         frozen_models_json=row.frozen_models_json,
+        code_snapshot_id=getattr(row, "code_snapshot_id", None),
     )
 
 

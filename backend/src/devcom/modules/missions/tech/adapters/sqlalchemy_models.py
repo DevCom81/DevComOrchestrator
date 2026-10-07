@@ -47,6 +47,7 @@ class TechReviewRow(Base):
     envelope_eur_micros: Mapped[int | None] = mapped_column(Integer, nullable=True)
     failure_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     frozen_models_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    code_snapshot_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
 
 
 class TechPipelineStepRow(Base):

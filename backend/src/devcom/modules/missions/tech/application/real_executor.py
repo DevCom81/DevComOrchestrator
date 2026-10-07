@@ -26,8 +26,10 @@ from devcom.modules.missions.tech.domain.artifacts import (
 from devcom.modules.missions.tech.domain.blocking import BlockingPolicy
 from devcom.modules.missions.tech.domain.review import TechReview
 from devcom.modules.missions.tech.domain.status import TechReviewStatus
+from devcom.modules.missions.tech.ports.code_snapshot_port import CodeSnapshotPort
 from devcom.modules.missions.tech.ports.llm_completion import LlmCompletionPort
 from devcom.modules.missions.tech.ports.tech_review_repository import TechReviewRepository
+from devcom.modules.projects.domain.code_artifacts import CodeSnapshot
 from devcom.shared.time import Clock
 
 
@@ -47,6 +49,7 @@ class RealPipelineExecutor:
         fx: FxTable,
         clock: Clock,
         apply_regional: bool,
+        code_snapshots: CodeSnapshotPort | None = None,
     ) -> None:
         self._repository = repository
         self._steps = steps
@@ -60,23 +63,30 @@ class RealPipelineExecutor:
         self._fx = fx
         self._clock = clock
         self._regional = rates.regional_uplift_ratio if apply_regional else "0"
+        self._code_snapshots = code_snapshots
 
     def run(self, review_id: str) -> None:
         review = self._repository.get_by_id(review_id)
         if review is None or review.plan_json is None or review.snapshot is None:
             return
         plan = json.loads(review.plan_json)
+        code = self._load_code(review)
         analyses: dict[str, SpecialistAnalysis] = {}
         findings: dict[str, Finding] = {}
         challenges: list[Challenge] = []
         try:
             for step in plan:
-                if not self._execute_step(review, step, analyses, findings, challenges):
+                if not self._execute_step(review, step, analyses, findings, challenges, code):
                     return
             self._finalize(review, analyses, challenges, findings)
         finally:
             self._ledger.release_global_lock(review_id)
             self._ledger.release_unused_envelope(review_id)
+
+    def _load_code(self, review: TechReview) -> CodeSnapshot | None:
+        if review.code_snapshot_id is None or self._code_snapshots is None:
+            return None
+        return self._code_snapshots.get(review.project_id, review.code_snapshot_id)
 
     def _execute_step(
         self,
@@ -85,6 +95,7 @@ class RealPipelineExecutor:
         analyses: dict[str, SpecialistAnalysis],
         findings: dict[str, Finding],
         challenges: list[Challenge],
+        code: CodeSnapshot | None,
     ) -> bool:
         skip = self._preflight(review, step, analyses, findings, challenges)
         if skip is not None:
@@ -99,6 +110,7 @@ class RealPipelineExecutor:
             analyses=analyses,
             findings=findings,
             challenges=challenges,
+            code_snapshot=code,
         )
         if not accept_input_bound(
             llm=self._llm,
@@ -129,6 +141,7 @@ class RealPipelineExecutor:
             findings=findings,
             challenges=challenges,
             fail=self._fail,
+            code_snapshot=code,
         )
 
     def _preflight(

@@ -29,6 +29,7 @@ class CreateTechReviewCommand:
     request_text: str
     idempotency_key: str
     execution_mode: ExecutionMode = ExecutionMode.DEMO
+    code_snapshot_id: str | None = None
 
 
 class CreateTechReview:
@@ -61,6 +62,7 @@ class CreateTechReview:
                 "project_id": command.project_id,
                 "request_text": command.request_text.strip(),
                 "execution_mode": command.execution_mode.value,
+                "code_snapshot_id": command.code_snapshot_id,
             }
         )
         existing = self._replay(command.idempotency_key, digest)
@@ -108,6 +110,7 @@ class CreateTechReview:
             unmatched=False,
             create_key=command.idempotency_key,
             execution_mode=ExecutionMode.REAL,
+            code_snapshot_id=command.code_snapshot_id,
         )
         self._prepare_real.apply(review)
         return self._persist(review, command.idempotency_key, digest)

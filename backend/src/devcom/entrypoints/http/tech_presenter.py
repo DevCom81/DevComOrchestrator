@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from devcom.entrypoints.http.code_sources_presenter import code_sources_dto
 from devcom.entrypoints.http.schemas.tech_schemas import (
     AdrDto,
     ChallengeDto,
@@ -26,6 +27,7 @@ from devcom.modules.missions.tech.domain.artifacts import (
     SpecialistAnalysis,
 )
 from devcom.modules.missions.tech.domain.review import TechReview
+from devcom.modules.projects.domain.code_artifacts import CodeSnapshot
 
 
 def review_to_dto(
@@ -35,6 +37,7 @@ def review_to_dto(
     steps: list[dict[str, Any]] | None = None,
     usage: list[dict[str, Any]] | None = None,
     reservation: dict[str, Any] | None = None,
+    code_snapshot: CodeSnapshot | None = None,
 ) -> TechReviewDto:
     suggested = None
     if review.scenario_id is None and review.execution_mode.value == "demo":
@@ -64,6 +67,8 @@ def review_to_dto(
         capability_registry_version=review.capability_registry_version,
         permission_policy_version=review.permission_policy_version,
         blocking_policy_version=review.blocking_policy_version,
+        code_snapshot_id=review.code_snapshot_id,
+        code_sources=code_sources_dto(code_snapshot),
         **_real_fields(review, frozen, steps, usage, reservation),
     )
 
@@ -97,6 +102,8 @@ def _snapshot(review: TechReview) -> SnapshotDto | None:
         project_description=snap.project_description,
         project_updated_at=snap.project_updated_at,
         captured_at=snap.captured_at,
+        code_snapshot_id=snap.code_snapshot_id,
+        has_code_sources=snap.has_code_sources,
     )
 
 

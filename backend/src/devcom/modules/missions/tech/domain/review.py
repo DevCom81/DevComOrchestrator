@@ -61,6 +61,7 @@ class TechReview:
     envelope_eur_micros: int | None = None
     failure_message: str | None = None
     frozen_models_json: str | None = None
+    code_snapshot_id: str | None = None
 
     @classmethod
     def create(
@@ -73,6 +74,7 @@ class TechReview:
         unmatched: bool,
         create_key: str,
         execution_mode: ExecutionMode = ExecutionMode.DEMO,
+        code_snapshot_id: str | None = None,
     ) -> TechReview:
         text = _bounded(request_text, REQUEST_MIN, REQUEST_MAX, "request")
         stamp = _utc(now)
@@ -92,6 +94,7 @@ class TechReview:
             unmatched_request=unmatched,
             create_idempotency_key=create_key,
             execution_mode=execution_mode,
+            code_snapshot_id=code_snapshot_id,
         )
 
     def confirm_scenario(

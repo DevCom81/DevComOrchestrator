@@ -52,11 +52,45 @@
 
 .project-form,
 .project-detail {
-  max-width: 42rem;
+  max-width: 56rem;
   padding: 1.1rem;
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.project-sources {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.project-sources__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.project-sources__file {
+  margin-top: 0.75rem;
+}
+
+.project-sources__file pre {
+  max-height: 18rem;
+  overflow: auto;
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  background: rgba(0, 0, 0, 0.25);
+  white-space: pre-wrap;
+  font-size: 0.85rem;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
 
 .project-form__actions {

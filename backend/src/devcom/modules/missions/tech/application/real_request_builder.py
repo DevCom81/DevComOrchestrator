@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from devcom.modules.missions.tech.application.code_sources import sources_payload
 from devcom.modules.missions.tech.application.prompt_loader import PromptBundle
 from devcom.modules.missions.tech.application.real_ingest import (
     analysis_dict,
@@ -15,6 +16,7 @@ from devcom.modules.missions.tech.domain.artifacts import (
 )
 from devcom.modules.missions.tech.domain.review import TechReview
 from devcom.modules.missions.tech.ports.llm_completion import LlmRequest
+from devcom.modules.projects.domain.code_artifacts import CodeSnapshot
 
 LlmParts = tuple[str, dict[str, Any], dict[str, Any]]
 
@@ -27,10 +29,11 @@ def build_llm_request(
     analyses: dict[str, SpecialistAnalysis],
     findings: dict[str, Finding],
     challenges: list[Challenge],
+    code_snapshot: CodeSnapshot | None = None,
 ) -> LlmRequest:
     phase = step["phase"]
     if phase == "analyze":
-        system, schema, payload = _analyze_parts(review, step, prompts)
+        system, schema, payload = _analyze_parts(review, step, prompts, code_snapshot)
     elif phase == "critique":
         system, schema, payload = _critique_parts(step, prompts, findings)
     elif phase == "reply":
@@ -51,7 +54,12 @@ def build_llm_request(
     )
 
 
-def _analyze_parts(review: TechReview, step: dict[str, Any], prompts: PromptBundle) -> LlmParts:
+def _analyze_parts(
+    review: TechReview,
+    step: dict[str, Any],
+    prompts: PromptBundle,
+    code_snapshot: CodeSnapshot | None,
+) -> LlmParts:
     system = prompts.system(
         "specialist_analyze_v1.md",
         agent_id=step["agent_id"],
@@ -66,7 +74,10 @@ def _analyze_parts(review: TechReview, step: dict[str, Any], prompts: PromptBund
             "project_description": snapshot.project_description if snapshot else "",
             "project_updated_at": snapshot.project_updated_at if snapshot else "",
             "captured_at": snapshot.captured_at if snapshot else "",
+            "code_snapshot_id": snapshot.code_snapshot_id if snapshot else None,
+            "has_code_sources": snapshot.has_code_sources if snapshot else False,
         },
+        "sources": sources_payload(code_snapshot),
     }
     return system, prompts.schema("analyze.json"), payload
 

@@ -10,6 +10,7 @@ import { DecisionPanel } from "./DecisionPanel";
 import { ProposalsPanel } from "./ProposalsPanel";
 import { RealLaunchPanel } from "./RealLaunchPanel";
 import { RealStepsPanel } from "./RealStepsPanel";
+import { ReviewSourcesPanel } from "./ReviewSourcesPanel";
 import { ReviewStatusBanner } from "./ReviewStatusBanner";
 import { ScenarioSelectPanel } from "./ScenarioSelectPanel";
 import { techStatusLabel } from "./techTypes";
@@ -84,6 +85,7 @@ export function TechReviewDetailPage() {
         </p>
       ) : null}
 
+      <ReviewSourcesPanel sources={review.code_sources} />
       {review.execution_mode === "demo" ? <ScenarioSelectPanel review={review} /> : null}
       <RealLaunchPanel review={review} />
       <RealStepsPanel review={review} />

@@ -73,6 +73,8 @@ export type SnapshotDto = {
   project_description: string;
   project_updated_at: string;
   captured_at: string;
+  code_snapshot_id: string | null;
+  has_code_sources: boolean;
 };
 
 export type DecisionDto = {
@@ -146,6 +148,27 @@ export type TechReviewDto = {
   steps: PipelineStepDto[];
   usage: UsageRecordDto[];
   reservation_status: string | null;
+  code_snapshot_id: string | null;
+  code_sources: CodeSourcesDto | null;
+};
+
+export type CodeSourceFileDto = {
+  relative_path: string;
+  sha256: string;
+  byte_size: number;
+  evidence_ref: string;
+};
+
+export type CodeSourcesDto = {
+  has_code_sources: boolean;
+  notice: string;
+  snapshot_id: string | null;
+  fingerprint: string | null;
+  captured_at: string | null;
+  git_commit: string | null;
+  git_dirty: boolean | null;
+  git_note: string | null;
+  files: CodeSourceFileDto[];
 };
 
 export type TechReviewListDto = { items: TechReviewDto[] };

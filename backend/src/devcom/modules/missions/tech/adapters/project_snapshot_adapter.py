@@ -26,6 +26,8 @@ class SqlProjectSnapshotAdapter:
                 project_description=row.description,
                 project_updated_at=_as_utc(row.updated_at).isoformat(),
                 captured_at=captured_at,
+                code_snapshot_id=None,
+                has_code_sources=False,
             )
 
 

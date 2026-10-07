@@ -94,6 +94,18 @@ class Settings(BaseSettings):
         return self.contracts_root / "prompts" / "tech"
 
     @property
+    def filesystem_bounds_path(self) -> Path:
+        return self.contracts_root / "filesystem" / "BOUNDS_V1.json"
+
+    @property
+    def filesystem_exclusions_path(self) -> Path:
+        return self.contracts_root / "filesystem" / "EXCLUSIONS_V1.json"
+
+    @property
+    def demo_code_fixture(self) -> Path:
+        return self.contracts_root / "demo" / "code_context"
+
+    @property
     def database_path(self) -> Path:
         return self.data_dir / "demo.sqlite"
 

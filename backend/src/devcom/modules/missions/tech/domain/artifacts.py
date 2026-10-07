@@ -75,6 +75,8 @@ class ContextSnapshot:
     project_description: str
     project_updated_at: str
     captured_at: str
+    code_snapshot_id: str | None = None
+    has_code_sources: bool = False
 
 
 @dataclass(frozen=True, slots=True)

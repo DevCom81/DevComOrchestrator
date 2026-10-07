@@ -5,6 +5,7 @@ import { ApiError } from "../../shared/api/client";
 import { Field } from "../../shared/ui/Field";
 import { useRuntimeQuery } from "../runtime/useRuntimeQuery";
 import { useProjectsQuery } from "../projects/useProjectsQueries";
+import { CodeSnapshotField } from "./CodeSnapshotField";
 import { newIdempotencyKey, REQUEST_MAX, type ExecutionMode } from "./techTypes";
 import { useCreateTechReviewMutation, useTechScenariosQuery } from "./useTechQueries";
 
@@ -17,6 +18,7 @@ export function TechCreateForm() {
   const [projectId, setProjectId] = useState("");
   const [requestText, setRequestText] = useState("");
   const [mode, setMode] = useState<ExecutionMode>("demo");
+  const [codeSnapshotId, setCodeSnapshotId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const realEnabled = runtime.data?.real_mode_enabled ?? false;
   const keyOk = runtime.data?.openai_key_configured ?? false;
@@ -43,6 +45,7 @@ export function TechCreateForm() {
         request_text: trimmed,
         idempotency_key: newIdempotencyKey("create"),
         execution_mode: mode,
+        code_snapshot_id: codeSnapshotId.trim() || null,
       });
       navigate(`/tech/${review.id}`);
     } catch (err) {
@@ -109,6 +112,7 @@ export function TechCreateForm() {
           required
         />
       </Field>
+      <CodeSnapshotField value={codeSnapshotId} onChange={setCodeSnapshotId} />
       <button type="submit" className="button button--primary" disabled={mutation.isPending}>
         {mutation.isPending ? "Création…" : "Créer la revue"}
       </button>

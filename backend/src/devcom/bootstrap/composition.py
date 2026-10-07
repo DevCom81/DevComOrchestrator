@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from devcom.bootstrap.code_context_wiring import CodeContextServices, build_code_context_services
 from devcom.bootstrap.settings import Settings
 from devcom.bootstrap.tech_wiring import TechServices, build_tech_services
 from devcom.modules.agents.adapters.static_agent_catalog import StaticAgentCatalog
@@ -43,8 +44,17 @@ from devcom.modules.missions.tech.ports.llm_completion import LlmCompletionPort
 from devcom.modules.projects.adapters.sqlalchemy_project_repository import (
     SqlAlchemyProjectRepository,
 )
+from devcom.modules.projects.application.attach_source_root import AttachSourceRoot
+from devcom.modules.projects.application.browse_source_tree import BrowseSourceTree
+from devcom.modules.projects.application.create_code_preview import CreateCodePreview
 from devcom.modules.projects.application.create_project import CreateProject
+from devcom.modules.projects.application.detach_source_root import DetachSourceRoot
+from devcom.modules.projects.application.freeze_code_snapshot import (
+    FreezeCodeSnapshot,
+    GetCodeSnapshot,
+)
 from devcom.modules.projects.application.get_project import GetProject
+from devcom.modules.projects.application.get_source_root import GetSourceRoot
 from devcom.modules.projects.application.list_projects import ListProjects
 from devcom.modules.projects.application.update_project import UpdateProject
 from devcom.shared.time import SystemClock
@@ -59,6 +69,13 @@ class ApplicationContainer:
     get_project: GetProject
     list_projects: ListProjects
     update_project: UpdateProject
+    attach_source_root: AttachSourceRoot
+    detach_source_root: DetachSourceRoot
+    get_source_root: GetSourceRoot
+    browse_source_tree: BrowseSourceTree
+    create_code_preview: CreateCodePreview
+    freeze_code_snapshot: FreezeCodeSnapshot
+    get_code_snapshot: GetCodeSnapshot
     list_agents: ListAgents
     demo_dispatcher: DemoDispatcher
     create_mission: CreateMission
@@ -110,10 +127,29 @@ def build_container(settings: Settings) -> ApplicationContainer:
     policy = load_permission_policy(settings.permissions_policy_path)
     dispatcher = DemoDispatcher(load_demo_dispatch_rules(settings.dispatch_rules_path))
     orchestrator = MissionOrchestrator(dispatcher, registry, policy)
-    tech = build_tech_services(settings, sessions, existence, registry, policy, clock)
+    code_ctx = build_code_context_services(settings, sessions, clock)
+    tech = build_tech_services(
+        settings,
+        sessions,
+        existence,
+        registry,
+        policy,
+        clock,
+        code_snapshots=code_ctx.code_snapshot_port,
+    )
     return _container(
-        settings, engine, sessions, projects, missions, existence,
-        agents, dispatcher, orchestrator, clock, tech,
+        settings,
+        engine,
+        sessions,
+        projects,
+        missions,
+        existence,
+        agents,
+        dispatcher,
+        orchestrator,
+        clock,
+        tech,
+        code_ctx,
     )
 
 
@@ -129,6 +165,7 @@ def _container(
     orchestrator: MissionOrchestrator,
     clock: SystemClock,
     tech: TechServices,
+    code_ctx: CodeContextServices,
 ) -> ApplicationContainer:
     return ApplicationContainer(
         settings=settings,
@@ -138,6 +175,13 @@ def _container(
         get_project=GetProject(projects),
         list_projects=ListProjects(projects),
         update_project=UpdateProject(projects, clock),
+        attach_source_root=code_ctx.attach_source_root,
+        detach_source_root=code_ctx.detach_source_root,
+        get_source_root=code_ctx.get_source_root,
+        browse_source_tree=code_ctx.browse_source_tree,
+        create_code_preview=code_ctx.create_code_preview,
+        freeze_code_snapshot=code_ctx.freeze_code_snapshot,
+        get_code_snapshot=code_ctx.get_code_snapshot,
         list_agents=ListAgents(agents),
         demo_dispatcher=dispatcher,
         create_mission=CreateMission(missions, existence, orchestrator, clock),

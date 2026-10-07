@@ -4,6 +4,7 @@ from collections.abc import Callable
 from typing import Any
 
 from devcom.modules.missions.tech.adapters.sqlalchemy_steps import SqlAlchemyStepStore
+from devcom.modules.missions.tech.application.code_sources import allowed_file_refs
 from devcom.modules.missions.tech.application.real_ingest import (
     ingest_analysis,
     ingest_critique,
@@ -18,6 +19,7 @@ from devcom.modules.missions.tech.domain.artifacts import (
 from devcom.modules.missions.tech.domain.review import TechReview
 from devcom.modules.missions.tech.domain.status import TechReviewStatus
 from devcom.modules.missions.tech.ports.llm_completion import LlmCompletionPort, LlmResult
+from devcom.modules.projects.domain.code_artifacts import CodeSnapshot
 
 
 def accept_input_bound(
@@ -58,6 +60,7 @@ def accept_result(
     findings: dict[str, Finding],
     challenges: list[Challenge],
     fail: Callable[[TechReview, str, TechReviewStatus], None],
+    code_snapshot: CodeSnapshot | None = None,
 ) -> bool:
     step_key = step["step_key"]
     if not result.ok or result.parsed is None:
@@ -74,7 +77,15 @@ def accept_result(
             TechReviewStatus.FAILED_PARTIAL,
         )
         return False
-    if not ingest_parsed(step, result.parsed, analyses, findings, challenges, review.snapshot):
+    if not ingest_parsed(
+        step,
+        result.parsed,
+        analyses,
+        findings,
+        challenges,
+        review.snapshot,
+        code_snapshot=code_snapshot,
+    ):
         steps.mark(
             review.id,
             step_key,
@@ -98,10 +109,12 @@ def ingest_parsed(
     findings: dict[str, Finding],
     challenges: list[Challenge],
     snapshot: ContextSnapshot | None,
+    code_snapshot: CodeSnapshot | None = None,
 ) -> bool:
     allowed_refs = {"snapshot:project"}
     if snapshot is not None:
         allowed_refs.add(f"snapshot:{snapshot.project_id}")
+    allowed_refs |= allowed_file_refs(code_snapshot)
     phase = step["phase"]
     if phase == "analyze":
         return ingest_analysis(step, parsed, analyses, findings, allowed_refs)

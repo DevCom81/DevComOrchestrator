@@ -5,6 +5,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from devcom.entrypoints.http.schemas.code_context_schemas import CodeSourcesDto
+
 
 class FindingDto(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -83,6 +85,8 @@ class SnapshotDto(BaseModel):
     project_description: str
     project_updated_at: str
     captured_at: str
+    code_snapshot_id: str | None = None
+    has_code_sources: bool = False
 
 
 class DecisionDto(BaseModel):
@@ -166,6 +170,8 @@ class TechReviewDto(BaseModel):
     steps: list[PipelineStepDto] = Field(default_factory=list)
     usage: list[UsageRecordDto] = Field(default_factory=list)
     reservation_status: str | None = None
+    code_snapshot_id: str | None = None
+    code_sources: CodeSourcesDto | None = None
 
 
 class TechReviewListDto(BaseModel):
@@ -195,6 +201,7 @@ class CreateTechReviewBody(BaseModel):
     request_text: str = Field(min_length=1, max_length=2000)
     idempotency_key: str = Field(min_length=1, max_length=128)
     execution_mode: str = Field(default="demo", pattern="^(demo|real)$")
+    code_snapshot_id: str | None = Field(default=None, max_length=36)
 
 
 class SelectScenarioBody(BaseModel):

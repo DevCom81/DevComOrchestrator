@@ -51,8 +51,8 @@ export async function apiGet<T>(path: string): Promise<T> {
 
 export async function apiSend<T>(
   path: string,
-  method: "POST" | "PATCH",
-  body: unknown,
+  method: "POST" | "PUT" | "PATCH" | "DELETE",
+  body?: unknown,
 ): Promise<T> {
   let response: Response;
   try {
@@ -62,7 +62,7 @@ export async function apiSend<T>(
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: body === undefined ? "{}" : JSON.stringify(body),
     });
   } catch {
     throw new ApiError(0, {

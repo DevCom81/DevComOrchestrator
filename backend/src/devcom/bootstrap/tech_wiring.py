@@ -47,6 +47,7 @@ from devcom.modules.missions.tech.application.select_scenario import SelectScena
 from devcom.modules.missions.tech.application.start_real_review import StartRealTechReview
 from devcom.modules.missions.tech.application.supervised_runner import SupervisedRealRunner
 from devcom.modules.missions.tech.domain.blocking import BlockingPolicy
+from devcom.modules.missions.tech.ports.code_snapshot_port import CodeSnapshotPort
 from devcom.modules.missions.tech.ports.idempotency_store import IdempotencyStore
 from devcom.modules.missions.tech.ports.llm_completion import LlmCompletionPort
 from devcom.modules.missions.tech.ports.project_snapshot import ProjectSnapshotPort
@@ -94,8 +95,9 @@ def build_tech_services(
     registry: CapabilityRegistry,
     policy: PermissionPolicy,
     clock: Clock,
+    code_snapshots: CodeSnapshotPort | None = None,
 ) -> TechServices:
-    core = _build_core(settings, session_factory, clock)
+    core = _build_core(settings, session_factory, clock, code_snapshots)
     llm = FakeLlmAdapter() if settings.llm_adapter == "fake" else OpenAIResponsesAdapter()
     executor = RealPipelineExecutor(
         repository=core.repo,
@@ -110,6 +112,7 @@ def build_tech_services(
         fx=core.fx,
         clock=clock,
         apply_regional=True,
+        code_snapshots=code_snapshots,
     )
     runner = SupervisedRealRunner(executor.run)
     reconcile_interrupted_real_pipeline(
@@ -125,8 +128,10 @@ def _build_core(
     settings: Settings,
     sessions: sessionmaker[Session],
     clock: Clock,
+    code_snapshots: CodeSnapshotPort | None,
 ) -> _TechCore:
     snapshots = SqlProjectSnapshotAdapter(sessions)
+    prompts = PromptBundle(settings.tech_prompts_root)
     return _TechCore(
         repo=SqlAlchemyTechReviewRepository(sessions),
         idem=SqlIdempotencyStore(sessions),
@@ -137,9 +142,11 @@ def _build_core(
         ledger=SqlAlchemyBudgetLedger(sessions, settings.monthly_budget_eur_micros),
         rates=load_openai_rates(settings.openai_rates_path),
         fx=load_fx_table(settings.fx_path),
-        prompts=PromptBundle(settings.tech_prompts_root),
+        prompts=prompts,
         prepare=PrepareRealReview(
             snapshots=snapshots,
+            code_snapshots=code_snapshots,
+            prompts=prompts,
             bounds_path=settings.tech_call_bounds_path,
             rates_path=settings.openai_rates_path,
             fx_path=settings.fx_path,

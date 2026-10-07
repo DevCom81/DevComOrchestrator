@@ -1,0 +1,3 @@
+# Fictitious demo config — not a secret store.
+app_name = "DemoApp"
+debug = false

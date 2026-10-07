@@ -36,7 +36,7 @@ def create_app(
         CORSMiddleware,
         allow_origins=resolved_settings.cors_origin_list,
         allow_credentials=False,
-        allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Accept"],
     )
     app.add_middleware(LocalMutationGuard, settings=resolved_settings)

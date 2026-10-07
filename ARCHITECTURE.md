@@ -289,8 +289,9 @@ Chaque tranche inclut domaine, cas d'usage, persistance/migrations si utiles, AP
 | 1 | Compétences, permissions, Dispatcher et mission bornée | QA refuse une classification de spam ; routage ambigu demande clarification |
 | 2 | Mission TECH complète avec adapters fictifs | Avis, contradiction, propositions, choix et ADR via UI |
 | 3 | Budget et premier fournisseur IA réel | Réservation concurrente, refus au plafond, résultat réel et coût |
-| 4 | TECH durable, erreurs et SSE | Reconnexion, redémarrage, annulation et absence de duplication |
+| 4 | Contexte code local vérifiable pour TECH | Root lecture seule, preview figé, snapshot immuable, sources de revue |
 | 5 | Plan Cursor, GO séparé, export et retour de diff | Choix sans modification du code ; revue de l'implémentation importée |
+| — | TECH durable, erreurs et SSE (**reporté** après LOT 4) | Reconnexion, redémarrage, annulation et absence de duplication |
 | 6 | MAIL quotidien sur un compte réel | Lire, classer, préparer puis envoyer uniquement après GO |
 | 7 | SALES réel, sources et relais MAIL | Prospect sourcé, dossier, brouillon, réponse rattachée |
 | 8 | SOCIAL quotidien | Historique, variantes, retouche, version finale et export/publication disponible |
@@ -306,4 +307,4 @@ Les validations build/tests sont lancées manuellement par Jérôme. La CI peut 
 
 ## 15. Décisions à confirmer avant les lots concernés
 
-Nom définitif et licence publique ; fournisseur/modèle du premier appel réel ; compte/protocole mail ; moteur de recherche et plafond associé ; périmètre exact d'accès filesystem ; capacités d'intégration Cursor et LinkedIn. Ces inconnues ne bloquent pas la conception ni la démo, mais aucune intégration réelle n'est inventée pour les remplacer.
+Nom définitif et licence publique ; fournisseur/modèle du premier appel réel ; compte/protocole mail ; moteur de recherche et plafond associé ; capacités d'intégration Cursor et LinkedIn. Le périmètre filesystem local (root attaché, exclusions, snapshot) est tranché au LOT 4 (ADR 0005). Ces autres inconnues ne bloquent pas la conception ni la démo, mais aucune intégration réelle n'est inventée pour les remplacer.

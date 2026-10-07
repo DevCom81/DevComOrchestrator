@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ErrorState } from "../../shared/ui/ErrorState";
 import { Spinner } from "../../shared/ui/Spinner";
 import { ProjectEditForm } from "./ProjectEditForm";
+import { ProjectSourcesPanel } from "./ProjectSourcesPanel";
 import { useProjectQuery } from "./useProjectsQueries";
 
 function formatStamp(value: string): string {
@@ -52,6 +53,7 @@ export function ProjectDetailPage() {
         {formatStamp(project.updated_at)}
       </p>
       <ProjectEditForm project={project} />
+      <ProjectSourcesPanel projectId={project.id} />
     </div>
   );
 }

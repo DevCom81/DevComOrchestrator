@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "verified_at": "2026-10-07",
+  "max_files_per_snapshot": 40,
+  "max_bytes_per_file": 102400,
+  "max_bytes_per_snapshot": 1572864,
+  "max_estimated_tokens_per_snapshot": 40000,
+  "max_tree_depth": 8,
+  "max_tree_entries_per_page": 200,
+  "max_tree_entries_total": 2000,
+  "max_browse_seconds": 5,
+  "preview_ttl_seconds": 3600,
+  "token_blocking_method": "utf8_byte_upper_bound",
+  "token_indicative_method": "char_div4_indicative",
+  "notes": [
+    "Selection caps only; each LLM step still enforces its own max_input.",
+    "Blocking token control uses utf8_byte_upper_bound (justified BPE ceiling: ≤1 token per UTF-8 byte).",
+    "char_div4 is display-only and never authorizes launch.",
+    "No silent truncation; over-limit refuses preview/freeze/launch."
+  ]
+}

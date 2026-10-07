@@ -63,7 +63,7 @@ def ingest_analysis(
     for raw in parsed.get("findings", []):
         refs = tuple(raw.get("evidence_refs", []))
         for ref in refs:
-            if ref in allowed_refs or str(ref).startswith("snapshot:"):
+            if ref in allowed_refs:
                 continue
             return False
         finding = Finding(
@@ -104,7 +104,7 @@ def ingest_critique(
     if not isinstance(target, str) or target not in findings:
         return False
     for ref in parsed.get("evidence_refs", []):
-        if ref not in allowed_refs and ref not in findings and not str(ref).startswith("snapshot:"):
+        if ref not in allowed_refs and ref not in findings:
             return False
     challenges.append(
         Challenge(

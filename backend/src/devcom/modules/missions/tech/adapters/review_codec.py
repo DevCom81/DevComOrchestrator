@@ -25,18 +25,30 @@ def loads(raw: str | None) -> Any:
     return json.loads(raw)
 
 
-def snapshot_to_dict(snapshot: ContextSnapshot) -> dict[str, str]:
+def snapshot_to_dict(snapshot: ContextSnapshot) -> dict[str, object]:
     return {
         "project_id": snapshot.project_id,
         "project_name": snapshot.project_name,
         "project_description": snapshot.project_description,
         "project_updated_at": snapshot.project_updated_at,
         "captured_at": snapshot.captured_at,
+        "code_snapshot_id": snapshot.code_snapshot_id,
+        "has_code_sources": snapshot.has_code_sources,
     }
 
 
-def snapshot_from_dict(data: dict[str, str]) -> ContextSnapshot:
-    return ContextSnapshot(**data)
+def snapshot_from_dict(data: dict[str, object]) -> ContextSnapshot:
+    return ContextSnapshot(
+        project_id=str(data["project_id"]),
+        project_name=str(data["project_name"]),
+        project_description=str(data["project_description"]),
+        project_updated_at=str(data["project_updated_at"]),
+        captured_at=str(data["captured_at"]),
+        code_snapshot_id=(
+            None if data.get("code_snapshot_id") in (None, "") else str(data["code_snapshot_id"])
+        ),
+        has_code_sources=bool(data.get("has_code_sources", False)),
+    )
 
 
 def analyses_to_json(analyses: list[SpecialistAnalysis]) -> str:

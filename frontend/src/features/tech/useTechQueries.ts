@@ -46,6 +46,7 @@ export function useCreateTechReviewMutation() {
       request_text: string;
       idempotency_key: string;
       execution_mode: ExecutionMode;
+      code_snapshot_id?: string | null;
     }) => apiSend<TechReviewDto>("/api/tech/reviews", "POST", body),
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ["tech-reviews"] });

@@ -77,6 +77,7 @@ def create_review(body: CreateTechReviewBody, container: ContainerDep) -> TechRe
             request_text=body.request_text,
             idempotency_key=body.idempotency_key,
             execution_mode=ExecutionMode(body.execution_mode),
+            code_snapshot_id=body.code_snapshot_id,
         )
     )
     return _present(container, review)
@@ -146,10 +147,24 @@ def _present(container: ContainerDep, review: TechReview) -> TechReviewDto:
     steps = container.step_store.list_steps(review.id)
     usage = container.budget_ledger.list_usage(review.id)
     reservation = container.budget_ledger.reservation_for(review.id)
+    code = None
+    if review.code_snapshot_id is not None:
+        from devcom.modules.projects.domain.errors import (
+            SnapshotIntegrityError,
+            SnapshotNotFoundError,
+        )
+
+        try:
+            code = container.get_code_snapshot.execute(
+                review.project_id, review.code_snapshot_id
+            )
+        except (SnapshotNotFoundError, SnapshotIntegrityError):
+            code = None
     return review_to_dto(
         review,
         container.scenario_catalog,
         steps=steps,
         usage=usage,
         reservation=reservation,
+        code_snapshot=code,
     )
