@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "default_effect": "deny",
+  "tools_enabled": false,
+  "actions": [
+    {
+      "id": "mission.route",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Proposer un routage et des affectations internes"
+    },
+    {
+      "id": "mission.clarify",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Demander et enregistrer une clarification"
+    },
+    {
+      "id": "mail.send",
+      "effect": "require_authorization",
+      "permission_class": "EXTERNAL",
+      "description": "Envoi de mail — exige une action concrète versionnée avant tout GO"
+    },
+    {
+      "id": "agent.tool_invoke",
+      "effect": "deny",
+      "permission_class": "MODIFY",
+      "description": "Outils agents désactivés en lot 1"
+    }
+  ]
+}

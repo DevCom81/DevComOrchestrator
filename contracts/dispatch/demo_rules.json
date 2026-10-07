@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "mode": "demo_deterministic",
+  "disclaimer": "Routage de démonstration par règles déterministes. Aucune compréhension libre du langage naturel.",
+  "rules": [
+    {
+      "id": "mail_classify",
+      "priority": 10,
+      "match": {
+        "all_phrases": ["classer", "mails"]
+      },
+      "negative_phrases": ["ne pas classer", "sans classer"],
+      "outcome": {
+        "type": "route",
+        "capability_ids": ["mail.classify"],
+        "rationale": "La demande porte sur la classification de mails, compétence du Secrétaire."
+      }
+    },
+    {
+      "id": "sqlite_persistence",
+      "priority": 20,
+      "match": {
+        "all_phrases": ["persistance", "sqlite"]
+      },
+      "negative_phrases": ["sans sqlite", "pas de sqlite"],
+      "outcome": {
+        "type": "route",
+        "capability_ids": ["data.sqlite_design", "arch.persistence_boundaries"],
+        "rationale": "Conception de persistance SQLite : SQL/Data pour le schéma, Architecte pour les frontières."
+      }
+    },
+    {
+      "id": "external_send_mail",
+      "priority": 5,
+      "match": {
+        "all_phrases": ["envoyer ce mail au client"]
+      },
+      "outcome": {
+        "type": "authorization_block",
+        "action_id": "mail.send",
+        "message": "Autorisation requise — action à préciser",
+        "rationale": "Intention EXTERNAL détectée, sans destinataire vérifié ni contenu exact. ApprovalRequest non créé."
+      }
+    },
+    {
+      "id": "mixed_sales_tech",
+      "priority": 30,
+      "match": {
+        "all_groups": [
+          ["prospect", "commercial", "vendeur"],
+          ["api", "technique", "endpoint"]
+        ]
+      },
+      "outcome": {
+        "type": "route",
+        "capability_ids": ["sales.qualify", "tech.api_feasibility"],
+        "rationale": "Demande mixte : piste commerciale et faisabilité technique séparées."
+      }
+    },
+    {
+      "id": "ambiguous_or_unknown",
+      "priority": 1000,
+      "match": {
+        "fallback": true
+      },
+      "outcome": {
+        "type": "clarify",
+        "questions": [
+          {
+            "id": "intent_kind",
+            "prompt": "Quel est le type principal de cette demande ?",
+            "choices": [
+              {
+                "id": "mail",
+                "label": "Classer des mails",
+                "maps_to_rule": "mail_classify"
+              },
+              {
+                "id": "sqlite",
+                "label": "Concevoir une persistance SQLite",
+                "maps_to_rule": "sqlite_persistence"
+              },
+              {
+                "id": "mixed",
+                "label": "Mixte commercial + technique (API)",
+                "maps_to_rule": "mixed_sales_tech"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

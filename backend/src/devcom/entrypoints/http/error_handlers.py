@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from devcom.modules.projects.domain.errors import ProjectNotFoundError, ProjectValidationError
-from devcom.shared.errors import DomainError
+from devcom.shared.errors import DomainError, NotFoundError, ValidationError
 
 
 def _json_error(status_code: int, code: str, message: str, details: object = None) -> JSONResponse:
@@ -15,14 +15,14 @@ def _json_error(status_code: int, code: str, message: str, details: object = Non
     return JSONResponse(status_code=status_code, content=payload)
 
 
-async def project_not_found(_request: Request, exc: Exception) -> JSONResponse:
-    if not isinstance(exc, ProjectNotFoundError):
+async def not_found_error(_request: Request, exc: Exception) -> JSONResponse:
+    if not isinstance(exc, NotFoundError):
         raise exc
     return _json_error(404, exc.code, exc.message)
 
 
-async def project_validation(_request: Request, exc: Exception) -> JSONResponse:
-    if not isinstance(exc, ProjectValidationError):
+async def validation_error(_request: Request, exc: Exception) -> JSONResponse:
+    if not isinstance(exc, ValidationError):
         raise exc
     return _json_error(422, exc.code, exc.message)
 
@@ -46,8 +46,10 @@ async def value_error(_request: Request, exc: Exception) -> JSONResponse:
 
 
 def register_error_handlers(app: FastAPI) -> None:
-    app.add_exception_handler(ProjectNotFoundError, project_not_found)
-    app.add_exception_handler(ProjectValidationError, project_validation)
+    app.add_exception_handler(ProjectNotFoundError, not_found_error)
+    app.add_exception_handler(NotFoundError, not_found_error)
+    app.add_exception_handler(ProjectValidationError, validation_error)
+    app.add_exception_handler(ValidationError, validation_error)
     app.add_exception_handler(DomainError, domain_error)
     app.add_exception_handler(RequestValidationError, request_validation)
     app.add_exception_handler(ValueError, value_error)

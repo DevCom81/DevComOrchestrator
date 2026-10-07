@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "tools_enabled": false,
+  "capabilities": [
+    {
+      "id": "mail.classify",
+      "domain": "communication",
+      "task_type": "classify_mail",
+      "allowed_agents": ["secretaire"],
+      "excluded_agents": [
+        "qa",
+        "architecte",
+        "cyber",
+        "devops",
+        "fullstack",
+        "sql_data",
+        "synthetiseur_tech",
+        "vendeur",
+        "social",
+        "dispatcher"
+      ],
+      "description": "Classification et tri de messages entrants"
+    },
+    {
+      "id": "data.sqlite_design",
+      "domain": "data",
+      "task_type": "design_persistence",
+      "allowed_agents": ["sql_data"],
+      "excluded_agents": [
+        "vendeur",
+        "secretaire",
+        "social",
+        "qa",
+        "dispatcher"
+      ],
+      "description": "Conception de la persistance SQLite"
+    },
+    {
+      "id": "arch.persistence_boundaries",
+      "domain": "architecture",
+      "task_type": "boundaries_and_dependencies",
+      "allowed_agents": ["architecte"],
+      "excluded_agents": [
+        "vendeur",
+        "secretaire",
+        "social",
+        "qa",
+        "dispatcher"
+      ],
+      "description": "Frontières et dépendances architecturales de la persistance"
+    },
+    {
+      "id": "sales.qualify",
+      "domain": "sales",
+      "task_type": "qualify_prospect",
+      "allowed_agents": ["vendeur"],
+      "excluded_agents": [
+        "architecte",
+        "cyber",
+        "qa",
+        "devops",
+        "fullstack",
+        "sql_data",
+        "synthetiseur_tech",
+        "secretaire",
+        "social",
+        "dispatcher"
+      ],
+      "description": "Qualification et suivi commercial"
+    },
+    {
+      "id": "tech.api_feasibility",
+      "domain": "engineering",
+      "task_type": "api_feasibility",
+      "allowed_agents": ["fullstack"],
+      "excluded_agents": [
+        "vendeur",
+        "secretaire",
+        "social",
+        "dispatcher"
+      ],
+      "description": "Faisabilité API applicative"
+    }
+  ]
+}

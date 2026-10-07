@@ -6,7 +6,9 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from devcom.bootstrap.settings import get_settings
-from devcom.modules.projects.adapters.sqlalchemy_models import Base
+from devcom.modules.missions.adapters import sqlalchemy_models as _mission_models  # noqa: F401
+from devcom.modules.projects.adapters import sqlalchemy_models as _project_models  # noqa: F401
+from devcom.shared.persistence import Base
 
 config = context.config
 if config.config_file_name is not None:

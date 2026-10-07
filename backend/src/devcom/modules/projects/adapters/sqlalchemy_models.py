@@ -3,11 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import DateTime, String, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
-
-class Base(DeclarativeBase):
-    pass
+from devcom.shared.persistence import Base
 
 
 class ProjectRow(Base):

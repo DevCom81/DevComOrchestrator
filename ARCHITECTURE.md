@@ -193,7 +193,18 @@ Aucun stockage ni affichage d'une chaîne de pensée privée. Conserver les conc
 
 ## 7. Durabilité, événements et concurrence
 
-États mission : draft, awaiting_clarification, queued, running, awaiting_decision, awaiting_approval, completed, failed, cancelled, paused_budget. Transitions explicites et testées.
+États mission (cible V1) : draft, awaiting_clarification, queued, running, awaiting_decision, awaiting_approval, completed, failed, cancelled, paused_budget.
+
+États mission retenus dès le LOT 1 (routage borné, sans exécution d'agents) :
+
+| État | Signification |
+|---|---|
+| `draft` | Mission créée, routage en cours d'application |
+| `awaiting_clarification` | Demande non reconnue ou ambiguë ; choix structurés requis |
+| `routed` | Tâches validées contre le Capability Registry ; consultable, sans lancement d'analyses |
+| `blocked_authorization` | Intention EXTERNAL détectée sans action concrète versionnée ; message « Autorisation requise — action à préciser » ; pas d'`ApprovalRequest` ni d'exécution |
+
+`awaiting_approval` est réservé aux lots ultérieurs lorsqu'une action EXTERNAL concrète (cible, contenu, hash) est prête pour un GO. Transitions LOT 1 testées : `draft` → `awaiting_clarification` \| `routed` \| `blocked_authorization` ; `awaiting_clarification` → `routed` \| `blocked_authorization` \| `awaiting_clarification` après réponse valide.
 
 États agent : idle, queued, working, waiting_human, completed, warning, error, offline. L'UI montre des étapes réelles ; pas de pourcentage de réflexion inventé.
 

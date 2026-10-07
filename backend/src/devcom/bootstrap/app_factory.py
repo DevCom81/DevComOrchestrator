@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from devcom.bootstrap.composition import ApplicationContainer, build_container
 from devcom.bootstrap.settings import Settings, get_settings
 from devcom.entrypoints.http.error_handlers import register_error_handlers
-from devcom.entrypoints.http.routers import agents, health, projects, runtime
+from devcom.entrypoints.http.routers import agents, health, missions, projects, runtime
 from devcom.entrypoints.http.security import LocalMutationGuard
 
 
@@ -39,6 +39,7 @@ def create_app(
     app.include_router(runtime.router)
     app.include_router(agents.router)
     app.include_router(projects.router)
+    app.include_router(missions.router)
 
     _mount_frontend(app, resolved_settings.frontend_dist)
     return app

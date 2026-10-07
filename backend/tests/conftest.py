@@ -5,12 +5,14 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event, text
 
 from devcom.bootstrap.app_factory import create_app
 from devcom.bootstrap.composition import build_container
 from devcom.bootstrap.settings import Settings
-from devcom.modules.projects.adapters.sqlalchemy_models import Base
+from devcom.modules.missions.adapters import sqlalchemy_models as _missions  # noqa: F401
+from devcom.modules.projects.adapters import sqlalchemy_models as _projects  # noqa: F401
+from devcom.shared.persistence import Base
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -24,7 +26,7 @@ def settings(tmp_path: Path) -> Settings:
         data_dir=tmp_path / "data",
         cors_origins="http://127.0.0.1:5173,http://localhost:5173",
         allowed_hosts="127.0.0.1:8765,localhost:8765,testserver",
-        contracts_dir=REPO_ROOT / "contracts" / "agents",
+        contracts_root=REPO_ROOT / "contracts",
         frontend_dist=tmp_path / "missing-dist",
     )
 
@@ -32,8 +34,20 @@ def settings(tmp_path: Path) -> Settings:
 @pytest.fixture()
 def migrated_settings(settings: Settings) -> Settings:
     settings.ensure_data_dir()
-    engine = create_engine(f"sqlite:///{settings.database_path}")
+    engine = create_engine(
+        f"sqlite:///{settings.database_path}",
+        connect_args={"check_same_thread": False},
+    )
+
+    @event.listens_for(engine, "connect")
+    def _fk(dbapi_connection: object, _record: object) -> None:
+        cursor = dbapi_connection.cursor()  # type: ignore[attr-defined]
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
     Base.metadata.create_all(engine)
+    with engine.connect() as connection:
+        assert connection.execute(text("PRAGMA foreign_keys")).scalar() == 1
     engine.dispose()
     return settings
 

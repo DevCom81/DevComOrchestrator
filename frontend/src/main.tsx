@@ -7,6 +7,7 @@ import "./app/shell.css";
 import "./shared/ui/ui.css";
 import "./features/hq/hq.css";
 import "./features/projects/projects.css";
+import "./features/missions/missions.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

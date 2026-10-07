@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export function HqSidePanels() {
   return (
     <section className="hq-panels" aria-label="Panneaux d'information">
@@ -11,16 +13,10 @@ export function HqSidePanels() {
       </div>
       <div className="hq-panel">
         <h2>Actions</h2>
-        <p>Les missions arriveront dans un prochain lot.</p>
-        <button
-          type="button"
-          className="button button--primary hq-panel__cta"
-          disabled
-          aria-disabled="true"
-          title="Bientôt"
-        >
+        <p>Créez une mission bornée — routage démo, sans exécution IA.</p>
+        <Link to="/missions" className="button button--primary hq-panel__cta">
           + Nouvelle mission
-        </button>
+        </Link>
       </div>
     </section>
   );

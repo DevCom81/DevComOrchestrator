@@ -23,7 +23,7 @@ def test_alembic_upgrade_creates_projects(tmp_path: Path, monkeypatch) -> None:
     settings = Settings(
         mode="demo",
         data_dir=data_dir,
-        contracts_dir=Path(__file__).resolve().parents[3] / "contracts" / "agents",
+        contracts_root=Path(__file__).resolve().parents[3] / "contracts",
     )
     settings.ensure_data_dir()
 

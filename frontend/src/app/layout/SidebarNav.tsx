@@ -26,6 +26,12 @@ export function SidebarNav() {
         </span>
         <span className="sidebar__text">PROJETS</span>
       </NavLink>
+      <NavLink to="/missions" className="sidebar__link">
+        <span className="sidebar__icon" aria-hidden="true">
+          ✦
+        </span>
+        <span className="sidebar__text">MISSIONS</span>
+      </NavLink>
       <ul className="sidebar__soon-list">
         {SOON_ITEMS.map((item) => (
           <li key={item.id}>

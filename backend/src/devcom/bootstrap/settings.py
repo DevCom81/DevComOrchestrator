@@ -25,15 +25,31 @@ class Settings(BaseSettings):
     allowed_hosts: str = "127.0.0.1:8765,localhost:8765"
     app_name: str = "DevCom Command Center"
     version: str = "0.1.0"
-    contracts_dir: Path = Field(default_factory=lambda: REPO_ROOT / "contracts" / "agents")
+    contracts_root: Path = Field(default_factory=lambda: REPO_ROOT / "contracts")
     frontend_dist: Path = Field(default_factory=lambda: REPO_ROOT / "frontend" / "dist")
 
     @field_validator("mode")
     @classmethod
     def demo_only(cls, value: str) -> str:
         if value != "demo":
-            raise ValueError("lot 0 supports DEVCOM_MODE=demo only")
+            raise ValueError("lot 0/1 support DEVCOM_MODE=demo only")
         return value
+
+    @property
+    def agents_contracts_dir(self) -> Path:
+        return self.contracts_root / "agents"
+
+    @property
+    def capabilities_registry_path(self) -> Path:
+        return self.contracts_root / "capabilities" / "registry.json"
+
+    @property
+    def permissions_policy_path(self) -> Path:
+        return self.contracts_root / "permissions" / "policy.json"
+
+    @property
+    def dispatch_rules_path(self) -> Path:
+        return self.contracts_root / "dispatch" / "demo_rules.json"
 
     @property
     def database_path(self) -> Path:
