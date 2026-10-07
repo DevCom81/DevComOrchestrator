@@ -11,6 +11,7 @@ from devcom.bootstrap.app_factory import create_app
 from devcom.bootstrap.composition import build_container
 from devcom.bootstrap.settings import Settings
 from devcom.modules.missions.adapters import sqlalchemy_models as _missions  # noqa: F401
+from devcom.modules.missions.tech.adapters import sqlalchemy_models as _tech  # noqa: F401
 from devcom.modules.projects.adapters import sqlalchemy_models as _projects  # noqa: F401
 from devcom.shared.persistence import Base
 

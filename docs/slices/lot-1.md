@@ -2,7 +2,7 @@
 
 ## Statut
 
-Implémenté — en attente de validation manuelle.
+**Validé** (technique + utilisateur) — 2026-10-07.
 
 ## Objectif
 
@@ -10,14 +10,14 @@ Créer une mission liée à un projet, obtenir un routage démo déterministe ex
 
 ## Critères d’acceptation
 
-- [ ] « Classer ces mails » → Secrétaire ; QA exclu
-- [ ] « Concevoir la persistance SQLite » → SQL/Data + Architecte ; Vendeur exclu
-- [ ] Demande mixte → tâches commercial / technique séparées
-- [ ] « Envoyer ce mail au client » → `blocked_authorization`, sans ApprovalRequest ni exécution
-- [ ] Demande inconnue → clarification structurée ; token obsolète refusé
-- [ ] Disclaimer routage démo visible
-- [ ] HQ agents toujours « Non activé » ; pas de bouton lancer les analyses
-- [ ] Persistance + FK SQLite ; limites lisibilité
+- [x] « Classer ces mails » → Secrétaire ; QA exclu
+- [x] « Concevoir la persistance SQLite » → SQL/Data + Architecte ; Vendeur exclu
+- [x] Demande mixte → tâches commercial / technique séparées
+- [x] « Envoyer ce mail au client » → `blocked_authorization`, sans ApprovalRequest ni exécution
+- [x] Demande inconnue → clarification structurée ; token obsolète refusé
+- [x] Disclaimer routage démo visible
+- [x] HQ agents toujours « Non activé » ; pas de bouton lancer les analyses
+- [x] Persistance + FK SQLite ; limites lisibilité
 
 ## Décisions clés
 

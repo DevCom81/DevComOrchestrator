@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "block_on_critical_security_finding",
+      "when": {
+        "risk_level": "critical",
+        "domain": "security"
+      },
+      "effect": "block_proposals_that_accept_finding",
+      "message": "Proposition bloquée : risque de sécurité critique non traité.",
+      "lift_conditions": [
+        "Documenter une mitigation acceptée par Cyber",
+        "Obtenir une dérogation humaine auditée (indisponible en lot 2)"
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "default_effect": "deny",
   "tools_enabled": false,
   "actions": [
@@ -25,7 +25,25 @@
       "id": "agent.tool_invoke",
       "effect": "deny",
       "permission_class": "MODIFY",
-      "description": "Outils agents désactivés en lot 1"
+      "description": "Outils agents désactivés"
+    },
+    {
+      "id": "tech.review.create",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Créer une revue TECH de démonstration"
+    },
+    {
+      "id": "tech.review.run",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Exécuter le pipeline TECH fictif"
+    },
+    {
+      "id": "tech.review.decide",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Enregistrer un choix humain de proposition (sans GO d'implémentation)"
     }
   ]
 }

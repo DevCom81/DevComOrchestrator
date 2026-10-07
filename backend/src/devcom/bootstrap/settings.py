@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     @classmethod
     def demo_only(cls, value: str) -> str:
         if value != "demo":
-            raise ValueError("lot 0/1 support DEVCOM_MODE=demo only")
+            raise ValueError("lot 0–2 support DEVCOM_MODE=demo only")
         return value
 
     @property
@@ -50,6 +50,14 @@ class Settings(BaseSettings):
     @property
     def dispatch_rules_path(self) -> Path:
         return self.contracts_root / "dispatch" / "demo_rules.json"
+
+    @property
+    def tech_scenarios_index_path(self) -> Path:
+        return self.contracts_root / "tech" / "scenarios" / "index.json"
+
+    @property
+    def tech_blocking_policy_path(self) -> Path:
+        return self.contracts_root / "tech" / "blocking_policy.json"
 
     @property
     def database_path(self) -> Path:

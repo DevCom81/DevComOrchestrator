@@ -1,0 +1,161 @@
+{
+  "id": "local_persistence",
+  "version": 1,
+  "title": "Revue architecture et persistance locale",
+  "specialists": [
+    {
+      "agent_id": "architecte",
+      "capability_id": "tech.analyze.architecture",
+      "findings": [
+        {
+          "id": "f-arch-1",
+          "domain": "architecture",
+          "observation": "Le monolithe modulaire avec ports explicites convient à la persistance locale.",
+          "evidence_refs": ["scenario:local_persistence#arch"],
+          "risk_level": "low",
+          "recommendation": "Conserver les frontières domaine/adapters.",
+          "hypotheses": ["Un seul processus local en V1"]
+        }
+      ],
+      "unknowns": ["Charge concurrente réelle non mesurée"],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "cyber",
+      "capability_id": "tech.analyze.security",
+      "findings": [
+        {
+          "id": "f-cyber-1",
+          "domain": "security",
+          "observation": "SQLite local sur loopback limite l'exposition réseau.",
+          "evidence_refs": ["scenario:local_persistence#cyber"],
+          "risk_level": "low",
+          "recommendation": "Maintenir Host/Origin et données hors dépôt.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "qa",
+      "capability_id": "tech.analyze.quality",
+      "findings": [
+        {
+          "id": "f-qa-1",
+          "domain": "quality",
+          "observation": "Les migrations Alembic et tests d'intégration SQLite sont un prérequis.",
+          "evidence_refs": ["scenario:local_persistence#qa"],
+          "risk_level": "medium",
+          "recommendation": "Couvrir reprise après redémarrage.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "devops",
+      "capability_id": "tech.analyze.delivery",
+      "findings": [
+        {
+          "id": "f-devops-1",
+          "domain": "delivery",
+          "observation": "Pas de service multi-nœud requis pour la démo locale.",
+          "evidence_refs": ["scenario:local_persistence#devops"],
+          "risk_level": "low",
+          "recommendation": "Documenter le chemin DATA_DIR et sauvegarde fichier.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "fullstack",
+      "capability_id": "tech.analyze.feasibility",
+      "findings": [
+        {
+          "id": "f-fs-1",
+          "domain": "feasibility",
+          "observation": "L'UI peut consommer un snapshot figé sans sync temps réel.",
+          "evidence_refs": ["scenario:local_persistence#fullstack"],
+          "risk_level": "low",
+          "recommendation": "Éviter WebSocket pour cette revue.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "sql_data",
+      "capability_id": "tech.analyze.data",
+      "findings": [
+        {
+          "id": "f-sql-1",
+          "domain": "data",
+          "observation": "WAL + FK SQLite suffisent pour l'intégrité locale V1.",
+          "evidence_refs": ["scenario:local_persistence#sql"],
+          "risk_level": "medium",
+          "recommendation": "Transactions courtes ; pas d'ORM partagé entre modules.",
+          "hypotheses": ["Un writer principal"]
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    }
+  ],
+  "challenges": [
+    {
+      "id": "c-1",
+      "challenger_agent_id": "sql_data",
+      "target_finding_id": "f-arch-1",
+      "objection": "Les ports seuls ne garantissent pas l'intégrité transactionnelle multi-tables.",
+      "evidence_refs": ["scenario:local_persistence#challenge-sql"],
+      "author_response": "D'accord : chaque cas d'usage doit écrire atomiquement ses agrégats.",
+      "domain": "data"
+    },
+    {
+      "id": "c-2",
+      "challenger_agent_id": "architecte",
+      "target_finding_id": "f-sql-1",
+      "objection": "Un writer unique peut devenir un goulot si on anticipe trop tôt.",
+      "evidence_refs": ["scenario:local_persistence#challenge-arch"],
+      "author_response": "Accepté comme limite V1 documentée, pas comme optimisation prématurée.",
+      "domain": "architecture"
+    }
+  ],
+  "disagreements": [
+    {
+      "id": "d-1",
+      "summary": "SQL/Data insiste sur l'atomicité multi-tables ; Architecte priorise la simplicité des frontières.",
+      "related_finding_ids": ["f-arch-1", "f-sql-1"],
+      "related_challenge_ids": ["c-1", "c-2"]
+    }
+  ],
+  "proposals": [
+    {
+      "id": "p-a",
+      "title": "SQLite par module avec transactions applicatives",
+      "solution": "Chaque module possède ses tables ; les cas d'usage orchestrent des transactions courtes.",
+      "advantages": ["Frontières claires", "FK locales"],
+      "risks": ["Coordination manuelle multi-agrégats"],
+      "tradeoffs": ["Moins de jointures globales"],
+      "validations": ["Tests d'intégration migration + redémarrage"],
+      "effort": "M",
+      "related_finding_ids": ["f-arch-1", "f-sql-1", "f-qa-1"]
+    },
+    {
+      "id": "p-b",
+      "title": "Schéma unique partagé avec mappers stricts",
+      "solution": "Une base unique plus couplée, mappers explicites pour limiter la fuite ORM.",
+      "advantages": ["Jointures plus simples"],
+      "risks": ["Couplage inter-modules"],
+      "tradeoffs": ["Moins hexagonal"],
+      "validations": ["Revue de dépendances entre modules"],
+      "effort": "S",
+      "related_finding_ids": ["f-fs-1", "f-devops-1"]
+    }
+  ]
+}

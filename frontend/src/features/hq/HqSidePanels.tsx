@@ -13,9 +13,12 @@ export function HqSidePanels() {
       </div>
       <div className="hq-panel">
         <h2>Actions</h2>
-        <p>Créez une mission bornée — routage démo, sans exécution IA.</p>
+        <p>Routage démo (missions) ou revue TECH fictive — moteurs IA non activés.</p>
         <Link to="/missions" className="button button--primary hq-panel__cta">
           + Nouvelle mission
+        </Link>
+        <Link to="/tech" className="button hq-panel__cta">
+          + Revue TECH
         </Link>
       </div>
     </section>

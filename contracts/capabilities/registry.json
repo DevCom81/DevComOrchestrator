@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "tools_enabled": false,
   "capabilities": [
     {
@@ -8,16 +8,8 @@
       "task_type": "classify_mail",
       "allowed_agents": ["secretaire"],
       "excluded_agents": [
-        "qa",
-        "architecte",
-        "cyber",
-        "devops",
-        "fullstack",
-        "sql_data",
-        "synthetiseur_tech",
-        "vendeur",
-        "social",
-        "dispatcher"
+        "qa", "architecte", "cyber", "devops", "fullstack", "sql_data",
+        "synthetiseur_tech", "vendeur", "social", "dispatcher"
       ],
       "description": "Classification et tri de messages entrants"
     },
@@ -26,13 +18,7 @@
       "domain": "data",
       "task_type": "design_persistence",
       "allowed_agents": ["sql_data"],
-      "excluded_agents": [
-        "vendeur",
-        "secretaire",
-        "social",
-        "qa",
-        "dispatcher"
-      ],
+      "excluded_agents": ["vendeur", "secretaire", "social", "qa", "dispatcher"],
       "description": "Conception de la persistance SQLite"
     },
     {
@@ -40,13 +26,7 @@
       "domain": "architecture",
       "task_type": "boundaries_and_dependencies",
       "allowed_agents": ["architecte"],
-      "excluded_agents": [
-        "vendeur",
-        "secretaire",
-        "social",
-        "qa",
-        "dispatcher"
-      ],
+      "excluded_agents": ["vendeur", "secretaire", "social", "qa", "dispatcher"],
       "description": "Frontières et dépendances architecturales de la persistance"
     },
     {
@@ -55,16 +35,8 @@
       "task_type": "qualify_prospect",
       "allowed_agents": ["vendeur"],
       "excluded_agents": [
-        "architecte",
-        "cyber",
-        "qa",
-        "devops",
-        "fullstack",
-        "sql_data",
-        "synthetiseur_tech",
-        "secretaire",
-        "social",
-        "dispatcher"
+        "architecte", "cyber", "qa", "devops", "fullstack", "sql_data",
+        "synthetiseur_tech", "secretaire", "social", "dispatcher"
       ],
       "description": "Qualification et suivi commercial"
     },
@@ -73,13 +45,79 @@
       "domain": "engineering",
       "task_type": "api_feasibility",
       "allowed_agents": ["fullstack"],
-      "excluded_agents": [
-        "vendeur",
-        "secretaire",
-        "social",
-        "dispatcher"
-      ],
+      "excluded_agents": ["vendeur", "secretaire", "social", "dispatcher"],
       "description": "Faisabilité API applicative"
+    },
+    {
+      "id": "tech.analyze.architecture",
+      "domain": "architecture",
+      "task_type": "tech_analysis",
+      "allowed_agents": ["architecte"],
+      "excluded_agents": [
+        "vendeur", "secretaire", "social", "dispatcher", "synthetiseur_tech"
+      ],
+      "description": "Analyse TECH architecture"
+    },
+    {
+      "id": "tech.analyze.security",
+      "domain": "security",
+      "task_type": "tech_analysis",
+      "allowed_agents": ["cyber"],
+      "excluded_agents": [
+        "vendeur", "secretaire", "social", "dispatcher", "synthetiseur_tech"
+      ],
+      "description": "Analyse TECH sécurité"
+    },
+    {
+      "id": "tech.analyze.quality",
+      "domain": "quality",
+      "task_type": "tech_analysis",
+      "allowed_agents": ["qa"],
+      "excluded_agents": [
+        "vendeur", "secretaire", "social", "dispatcher", "synthetiseur_tech"
+      ],
+      "description": "Analyse TECH qualité"
+    },
+    {
+      "id": "tech.analyze.delivery",
+      "domain": "delivery",
+      "task_type": "tech_analysis",
+      "allowed_agents": ["devops"],
+      "excluded_agents": [
+        "vendeur", "secretaire", "social", "dispatcher", "synthetiseur_tech"
+      ],
+      "description": "Analyse TECH livraison"
+    },
+    {
+      "id": "tech.analyze.feasibility",
+      "domain": "feasibility",
+      "task_type": "tech_analysis",
+      "allowed_agents": ["fullstack"],
+      "excluded_agents": [
+        "vendeur", "secretaire", "social", "dispatcher", "synthetiseur_tech"
+      ],
+      "description": "Analyse TECH faisabilité applicative"
+    },
+    {
+      "id": "tech.analyze.data",
+      "domain": "data",
+      "task_type": "tech_analysis",
+      "allowed_agents": ["sql_data"],
+      "excluded_agents": [
+        "vendeur", "secretaire", "social", "dispatcher", "synthetiseur_tech"
+      ],
+      "description": "Analyse TECH données"
+    },
+    {
+      "id": "tech.synthesize",
+      "domain": "synthesis",
+      "task_type": "tech_synthesis",
+      "allowed_agents": ["synthetiseur_tech"],
+      "excluded_agents": [
+        "architecte", "cyber", "qa", "devops", "fullstack", "sql_data",
+        "vendeur", "secretaire", "social", "dispatcher"
+      ],
+      "description": "Synthèse TECH sans inventer d'expertise"
     }
   ]
 }

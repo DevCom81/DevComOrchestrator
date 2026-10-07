@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "mode": "demo_deterministic",
+  "disclaimer": "Revue TECH de démonstration — analyses issues de scénarios fictifs versionnés, sans compréhension libre ni appel IA.",
+  "scenarios": [
+    {
+      "id": "local_persistence",
+      "file": "local_persistence.json",
+      "label": "Architecture / persistance locale",
+      "match_phrases": ["persistance", "sqlite", "hexagonal", "architecture locale"]
+    },
+    {
+      "id": "security_critical",
+      "file": "security_critical.json",
+      "label": "Sécurité — risque critique",
+      "match_phrases": ["sécurité", "auth", "secrets", "exposition"]
+    }
+  ]
+}

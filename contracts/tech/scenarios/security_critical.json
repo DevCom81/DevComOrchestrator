@@ -1,0 +1,162 @@
+{
+  "id": "security_critical",
+  "version": 1,
+  "title": "Revue sécurité — exposition et secrets",
+  "specialists": [
+    {
+      "agent_id": "architecte",
+      "capability_id": "tech.analyze.architecture",
+      "findings": [
+        {
+          "id": "f-arch-s1",
+          "domain": "architecture",
+          "observation": "Les secrets ne doivent pas traverser le domaine ni le frontend.",
+          "evidence_refs": ["scenario:security_critical#arch"],
+          "risk_level": "medium",
+          "recommendation": "Références d'identifiants côté serveur uniquement.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "cyber",
+      "capability_id": "tech.analyze.security",
+      "findings": [
+        {
+          "id": "f-cyber-critical",
+          "domain": "security",
+          "observation": "Une proposition qui journaliserait des jetons en clair créerait une exposition critique.",
+          "evidence_refs": ["scenario:security_critical#cyber-critical"],
+          "risk_level": "critical",
+          "recommendation": "Interdire tout stockage ou log de secret en clair.",
+          "hypotheses": ["Aucun coffre-fort externe en lot 2"]
+        },
+        {
+          "id": "f-cyber-s2",
+          "domain": "security",
+          "observation": "Loopback + validation Host/Origin restent nécessaires.",
+          "evidence_refs": ["scenario:security_critical#cyber-base"],
+          "risk_level": "low",
+          "recommendation": "Conserver les gardes LOT 0.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "qa",
+      "capability_id": "tech.analyze.quality",
+      "findings": [
+        {
+          "id": "f-qa-s1",
+          "domain": "quality",
+          "observation": "Des tests doivent prouver l'absence de secret dans les exports.",
+          "evidence_refs": ["scenario:security_critical#qa"],
+          "risk_level": "medium",
+          "recommendation": "Ajouter des assertions de redaction.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "devops",
+      "capability_id": "tech.analyze.delivery",
+      "findings": [
+        {
+          "id": "f-devops-s1",
+          "domain": "delivery",
+          "observation": "Les logs applicatifs ne doivent pas être commités.",
+          "evidence_refs": ["scenario:security_critical#devops"],
+          "risk_level": "medium",
+          "recommendation": "gitignore strict des logs et bases.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "fullstack",
+      "capability_id": "tech.analyze.feasibility",
+      "findings": [
+        {
+          "id": "f-fs-s1",
+          "domain": "feasibility",
+          "observation": "Le navigateur ne doit jamais recevoir de clé fournisseur.",
+          "evidence_refs": ["scenario:security_critical#fullstack"],
+          "risk_level": "medium",
+          "recommendation": "API locale uniquement pour les opérations sensibles.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    },
+    {
+      "agent_id": "sql_data",
+      "capability_id": "tech.analyze.data",
+      "findings": [
+        {
+          "id": "f-sql-s1",
+          "domain": "data",
+          "observation": "Stocker des références de credentials, jamais la valeur.",
+          "evidence_refs": ["scenario:security_critical#sql"],
+          "risk_level": "medium",
+          "recommendation": "Colonnes opaque_id sans secret.",
+          "hypotheses": []
+        }
+      ],
+      "unknowns": [],
+      "out_of_scope_findings": []
+    }
+  ],
+  "challenges": [
+    {
+      "id": "c-s1",
+      "challenger_agent_id": "cyber",
+      "target_finding_id": "f-fs-s1",
+      "objection": "Sans garde backend, une UI « prudente » ne suffit pas.",
+      "evidence_refs": ["scenario:security_critical#challenge-cyber"],
+      "author_response": "Confirmé : le contrôle Host/Origin et l'absence de secret côté client sont obligatoires.",
+      "domain": "security"
+    }
+  ],
+  "disagreements": [
+    {
+      "id": "d-s1",
+      "summary": "Cyber exige un blocage dur sur toute approche qui accepterait des logs de jetons ; FullStack préfère une mitigation progressive documentée.",
+      "related_finding_ids": ["f-cyber-critical", "f-fs-s1"],
+      "related_challenge_ids": ["c-s1"]
+    }
+  ],
+  "proposals": [
+    {
+      "id": "p-danger",
+      "title": "Journaliser les jetons pour le debug local",
+      "solution": "Écrire les jetons dans les logs applicatifs pour faciliter le diagnostic.",
+      "advantages": ["Debug rapide"],
+      "risks": ["Exposition critique de secrets"],
+      "tradeoffs": ["Convenience vs sécurité"],
+      "validations": ["Aucune acceptable sans redaction"],
+      "effort": "S",
+      "related_finding_ids": ["f-cyber-critical", "f-devops-s1"],
+      "accepts_finding_ids": ["f-cyber-critical"]
+    },
+    {
+      "id": "p-safe",
+      "title": "Références opaque + redaction systématique",
+      "solution": "Persister uniquement des références ; redacter logs et exports.",
+      "advantages": ["Pas de secret en clair", "Aligné loopback"],
+      "risks": ["Debug un peu plus lent"],
+      "tradeoffs": ["Moins de traces brutes"],
+      "validations": ["Tests d'absence de secret", "Revue Cyber"],
+      "effort": "M",
+      "related_finding_ids": ["f-cyber-s2", "f-sql-s1", "f-qa-s1", "f-arch-s1"]
+    }
+  ]
+}

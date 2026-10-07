@@ -1,7 +1,6 @@
 import { NavLink } from "react-router-dom";
 
 const SOON_ITEMS = [
-  { id: "tech", label: "TECH", icon: "◈" },
   { id: "sales", label: "SALES", icon: "◎" },
   { id: "mail", label: "MAIL", icon: "✉" },
   { id: "social", label: "SOCIAL", icon: "⌁" },
@@ -31,6 +30,12 @@ export function SidebarNav() {
           ✦
         </span>
         <span className="sidebar__text">MISSIONS</span>
+      </NavLink>
+      <NavLink to="/tech" className="sidebar__link">
+        <span className="sidebar__icon" aria-hidden="true">
+          ◈
+        </span>
+        <span className="sidebar__text">TECH</span>
       </NavLink>
       <ul className="sidebar__soon-list">
         {SOON_ITEMS.map((item) => (

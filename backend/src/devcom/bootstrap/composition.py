@@ -8,6 +8,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from devcom.bootstrap.settings import Settings
+from devcom.bootstrap.tech_wiring import TechServices, build_tech_services
 from devcom.modules.agents.adapters.static_agent_catalog import StaticAgentCatalog
 from devcom.modules.agents.application.list_agents import ListAgents
 from devcom.modules.missions.adapters.json_contracts import (
@@ -27,6 +28,14 @@ from devcom.modules.missions.application.demo_dispatcher import DemoDispatcher
 from devcom.modules.missions.application.get_mission import GetMission
 from devcom.modules.missions.application.list_missions import ListMissions
 from devcom.modules.missions.application.orchestrator import MissionOrchestrator
+from devcom.modules.missions.tech.adapters.scenario_catalog import ScenarioCatalog
+from devcom.modules.missions.tech.application.create_review import CreateTechReview
+from devcom.modules.missions.tech.application.decide_review import DecideTechReview
+from devcom.modules.missions.tech.application.get_review import GetTechReview
+from devcom.modules.missions.tech.application.list_reviews import ListTechReviews
+from devcom.modules.missions.tech.application.list_scenarios import ListTechScenarios
+from devcom.modules.missions.tech.application.run_pipeline import RunTechPipeline
+from devcom.modules.missions.tech.application.select_scenario import SelectScenario
 from devcom.modules.projects.adapters.sqlalchemy_project_repository import (
     SqlAlchemyProjectRepository,
 )
@@ -52,6 +61,14 @@ class ApplicationContainer:
     get_mission: GetMission
     list_missions: ListMissions
     answer_clarification: AnswerClarification
+    scenario_catalog: ScenarioCatalog
+    list_tech_scenarios: ListTechScenarios
+    create_tech_review: CreateTechReview
+    get_tech_review: GetTechReview
+    list_tech_reviews: ListTechReviews
+    select_tech_scenario: SelectScenario
+    run_tech_pipeline: RunTechPipeline
+    decide_tech_review: DecideTechReview
 
 
 def build_engine(database_path: Path) -> Engine:
@@ -74,38 +91,56 @@ def build_engine(database_path: Path) -> Engine:
 
 def build_container(settings: Settings) -> ApplicationContainer:
     engine = build_engine(settings.database_path)
-    session_factory = sessionmaker(bind=engine, expire_on_commit=False, class_=Session)
-    project_repository = SqlAlchemyProjectRepository(session_factory)
-    mission_repository = SqlAlchemyMissionRepository(session_factory)
-    project_existence = SqlProjectExistenceAdapter(session_factory)
+    sessions = sessionmaker(bind=engine, expire_on_commit=False, class_=Session)
     clock = SystemClock()
-    catalog = StaticAgentCatalog(settings.agents_contracts_dir)
+    projects = SqlAlchemyProjectRepository(sessions)
+    missions = SqlAlchemyMissionRepository(sessions)
+    existence = SqlProjectExistenceAdapter(sessions)
+    agents = StaticAgentCatalog(settings.agents_contracts_dir)
     registry = load_capability_registry(settings.capabilities_registry_path)
     policy = load_permission_policy(settings.permissions_policy_path)
-    dispatch_rules = load_demo_dispatch_rules(settings.dispatch_rules_path)
-    dispatcher = DemoDispatcher(dispatch_rules)
+    dispatcher = DemoDispatcher(load_demo_dispatch_rules(settings.dispatch_rules_path))
     orchestrator = MissionOrchestrator(dispatcher, registry, policy)
+    tech = build_tech_services(settings, sessions, existence, registry, policy, clock)
+    return _container(
+        settings, engine, sessions, projects, missions, existence,
+        agents, dispatcher, orchestrator, clock, tech,
+    )
+
+
+def _container(
+    settings: Settings,
+    engine: Engine,
+    sessions: sessionmaker[Session],
+    projects: SqlAlchemyProjectRepository,
+    missions: SqlAlchemyMissionRepository,
+    existence: SqlProjectExistenceAdapter,
+    agents: StaticAgentCatalog,
+    dispatcher: DemoDispatcher,
+    orchestrator: MissionOrchestrator,
+    clock: SystemClock,
+    tech: TechServices,
+) -> ApplicationContainer:
     return ApplicationContainer(
         settings=settings,
         engine=engine,
-        session_factory=session_factory,
-        create_project=CreateProject(project_repository, clock),
-        get_project=GetProject(project_repository),
-        list_projects=ListProjects(project_repository),
-        update_project=UpdateProject(project_repository, clock),
-        list_agents=ListAgents(catalog),
+        session_factory=sessions,
+        create_project=CreateProject(projects, clock),
+        get_project=GetProject(projects),
+        list_projects=ListProjects(projects),
+        update_project=UpdateProject(projects, clock),
+        list_agents=ListAgents(agents),
         demo_dispatcher=dispatcher,
-        create_mission=CreateMission(
-            mission_repository,
-            project_existence,
-            orchestrator,
-            clock,
-        ),
-        get_mission=GetMission(mission_repository),
-        list_missions=ListMissions(mission_repository),
-        answer_clarification=AnswerClarification(
-            mission_repository,
-            orchestrator,
-            clock,
-        ),
+        create_mission=CreateMission(missions, existence, orchestrator, clock),
+        get_mission=GetMission(missions),
+        list_missions=ListMissions(missions),
+        answer_clarification=AnswerClarification(missions, orchestrator, clock),
+        scenario_catalog=tech.scenario_catalog,
+        list_tech_scenarios=tech.list_tech_scenarios,
+        create_tech_review=tech.create_tech_review,
+        get_tech_review=tech.get_tech_review,
+        list_tech_reviews=tech.list_tech_reviews,
+        select_tech_scenario=tech.select_tech_scenario,
+        run_tech_pipeline=tech.run_tech_pipeline,
+        decide_tech_review=tech.decide_tech_review,
     )

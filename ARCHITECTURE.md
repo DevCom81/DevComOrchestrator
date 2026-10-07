@@ -206,6 +206,19 @@ Aucun stockage ni affichage d'une chaîne de pensée privée. Conserver les conc
 
 `awaiting_approval` est réservé aux lots ultérieurs lorsqu'une action EXTERNAL concrète (cible, contenu, hash) est prête pour un GO. Transitions LOT 1 testées : `draft` → `awaiting_clarification` \| `routed` \| `blocked_authorization` ; `awaiting_clarification` → `routed` \| `blocked_authorization` \| `awaiting_clarification` après réponse valide.
 
+### Agrégat TechReview (LOT 2)
+
+Distinct des missions de routage. Réutilise le Capability Registry et la Permission Policy ; pas de second orchestrateur. Les missions LOT 1 ne lancent pas de revue TECH.
+
+| État | Signification |
+|---|---|
+| `selecting_scenario` | Revue créée ; scénario fictif à confirmer explicitement |
+| `ready_to_run` | Scénario + snapshot projet figés ; pipeline non encore exécuté |
+| `awaiting_decision` | Résultats déterministes persistés ; propositions (éventuellement bloquées) consultables |
+| `decided` | Décision humaine + ADR de démonstration (sans GO d'implémentation) |
+
+Pipeline synchrone : validation complète des résultats avant écriture atomique. Idempotence sur création, lancement et décision. Politique de blocage versionnée (`contracts/tech/blocking_policy.json`) ; aucune levée de risque critique dans le LOT 2.
+
 États agent : idle, queued, working, waiting_human, completed, warning, error, offline. L'UI montre des étapes réelles ; pas de pourcentage de réflexion inventé.
 
 SQLite conserve tâches, tentatives, leases et résultats. Un worker local reprend les tâches récupérables au redémarrage ; `asyncio` sert à exécuter, pas à conserver la file. Timeouts, tentatives et taille de contexte bornés. Les appels facturés ne sont pas rejoués aveuglément après un timeout ambigu.

@@ -1,0 +1,88 @@
+from __future__ import annotations
+
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
+
+from devcom.shared.persistence import Base
+
+
+class TechReviewRow(Base):
+    __tablename__ = "tech_reviews"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    project_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("projects.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+    request_text: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    disclaimer: Mapped[str] = mapped_column(Text, nullable=False)
+    unmatched_request: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    scenario_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    scenario_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    scenario_label_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    snapshot_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    analyses_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    challenges_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    synthesis_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    proposals_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    proposals_version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    capability_registry_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    permission_policy_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    blocking_policy_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    create_idempotency_key: Mapped[str | None] = mapped_column(
+        String(128),
+        nullable=True,
+        unique=True,
+    )
+
+
+class TechDecisionRow(Base):
+    __tablename__ = "tech_decisions"
+    __table_args__ = (UniqueConstraint("review_id", name="uq_tech_decisions_review"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    review_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("tech_reviews.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    proposal_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    proposal_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    rationale: Mapped[str] = mapped_column(Text, nullable=False)
+    author: Mapped[str] = mapped_column(String(128), nullable=False)
+    decided_at: Mapped[str] = mapped_column(String(64), nullable=False)
+
+
+class TechAdrRow(Base):
+    __tablename__ = "tech_adrs"
+    __table_args__ = (UniqueConstraint("review_id", name="uq_tech_adrs_review"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    review_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("tech_reviews.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    demo_warning: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class IdempotencyRow(Base):
+    __tablename__ = "tech_idempotency"
+    __table_args__ = (
+        UniqueConstraint("operation", "key", name="uq_tech_idempotency_op_key"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    operation: Mapped[str] = mapped_column(String(64), nullable=False)
+    key: Mapped[str] = mapped_column(String(128), nullable=False)
+    payload_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    resource_id: Mapped[str] = mapped_column(String(36), nullable=False)
