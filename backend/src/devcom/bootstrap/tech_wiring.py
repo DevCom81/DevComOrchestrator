@@ -26,14 +26,19 @@ from devcom.modules.missions.tech.adapters.scenario_catalog import (
     ScenarioCatalog,
     load_scenario_catalog,
 )
+from devcom.modules.missions.tech.adapters.sqlalchemy_events import SqlAlchemyEventStore
 from devcom.modules.missions.tech.adapters.sqlalchemy_steps import SqlAlchemyStepStore
 from devcom.modules.missions.tech.adapters.sqlalchemy_tech_repository import (
     SqlAlchemyTechReviewRepository,
     SqlIdempotencyStore,
 )
+from devcom.modules.missions.tech.application.acknowledge_uncertainty import (
+    AcknowledgeUncertainty,
+)
 from devcom.modules.missions.tech.application.create_review import CreateTechReview
 from devcom.modules.missions.tech.application.decide_review import DecideTechReview
 from devcom.modules.missions.tech.application.get_review import GetTechReview
+from devcom.modules.missions.tech.application.list_events import ListTechEvents
 from devcom.modules.missions.tech.application.list_reviews import ListTechReviews
 from devcom.modules.missions.tech.application.list_scenarios import ListTechScenarios
 from devcom.modules.missions.tech.application.prepare_real_review import PrepareRealReview
@@ -66,6 +71,9 @@ class TechServices:
     run_tech_pipeline: RunTechPipeline
     start_real_tech_review: StartRealTechReview
     decide_tech_review: DecideTechReview
+    acknowledge_uncertainty: AcknowledgeUncertainty
+    list_tech_events: ListTechEvents
+    event_store: SqlAlchemyEventStore
     budget_ledger: SqlAlchemyBudgetLedger
     step_store: SqlAlchemyStepStore
     llm: LlmCompletionPort
@@ -81,11 +89,13 @@ class _TechCore:
     blocking: BlockingPolicy
     snapshots: ProjectSnapshotPort
     steps: SqlAlchemyStepStore
+    events: SqlAlchemyEventStore
     ledger: SqlAlchemyBudgetLedger
     rates: OpenAiRateTable
     fx: FxTable
     prompts: PromptBundle
     prepare: PrepareRealReview
+    sessions: sessionmaker[Session]
 
 
 def build_tech_services(
@@ -103,6 +113,8 @@ def build_tech_services(
         repository=core.repo,
         steps=core.steps,
         ledger=core.ledger,
+        events=core.events,
+        sessions=core.sessions,
         llm=llm,
         prompts=core.prompts,
         registry=registry,
@@ -119,6 +131,7 @@ def build_tech_services(
         session_factory=session_factory,
         steps=core.steps,
         ledger=core.ledger,
+        events=core.events,
         clock=clock,
     )
     return _assemble(core, llm, runner, project_existence, registry, policy, clock, settings)
@@ -139,6 +152,7 @@ def _build_core(
         blocking=load_blocking_policy(settings.tech_blocking_policy_path),
         snapshots=snapshots,
         steps=SqlAlchemyStepStore(sessions),
+        events=SqlAlchemyEventStore(sessions),
         ledger=SqlAlchemyBudgetLedger(sessions, settings.monthly_budget_eur_micros),
         rates=load_openai_rates(settings.openai_rates_path),
         fx=load_fx_table(settings.fx_path),
@@ -154,6 +168,7 @@ def _build_core(
             real_mode_enabled=settings.real_mode_enabled,
             clock=clock,
         ),
+        sessions=sessions,
     )
 
 
@@ -190,6 +205,7 @@ def _assemble(
             repository=core.repo,
             steps=core.steps,
             ledger=core.ledger,
+            events=core.events,
             runner=runner,
             policy=policy,
             idempotency=core.idem,
@@ -200,6 +216,15 @@ def _assemble(
             clock=clock,
         ),
         decide_tech_review=DecideTechReview(core.repo, policy, core.idem, clock),
+        acknowledge_uncertainty=AcknowledgeUncertainty(
+            repository=core.repo,
+            events=core.events,
+            policy=policy,
+            idempotency=core.idem,
+            clock=clock,
+        ),
+        list_tech_events=ListTechEvents(core.repo, core.events),
+        event_store=core.events,
         budget_ledger=core.ledger,
         step_store=core.steps,
         llm=llm,

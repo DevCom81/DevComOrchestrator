@@ -89,6 +89,8 @@ def _real_fields(
         "steps": [_step(item) for item in steps or []],
         "usage": [_usage(item) for item in usage or []],
         "reservation_status": None if reservation is None else str(reservation["status"]),
+        "uncertainty_ack_at": review.uncertainty_ack_at,
+        "uncertainty_ack_reason": review.uncertainty_ack_reason,
     }
 
 

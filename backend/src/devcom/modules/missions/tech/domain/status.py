@@ -7,9 +7,13 @@ class TechReviewStatus(StrEnum):
     RUNNING = "running"
     AWAITING_DECISION = "awaiting_decision"
     FAILED_PARTIAL = "failed_partial"
+    INTERRUPTED = "interrupted"
     BLOCKED_UNCERTAIN = "blocked_uncertain"
     PAUSED_BUDGET = "paused_budget"
     DECIDED = "decided"
+
+
+IDEM_ACK_UNCERTAIN = "tech.ack_uncertain"
 
 
 class ExecutionMode(StrEnum):

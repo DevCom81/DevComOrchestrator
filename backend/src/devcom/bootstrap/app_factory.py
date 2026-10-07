@@ -16,6 +16,7 @@ from devcom.entrypoints.http.routers import (
     missions,
     projects,
     runtime,
+    tech_events,
     tech_reviews,
 )
 from devcom.entrypoints.http.security import LocalMutationGuard
@@ -48,6 +49,7 @@ def create_app(
     app.include_router(projects.router)
     app.include_router(missions.router)
     app.include_router(tech_reviews.router)
+    app.include_router(tech_events.router)
 
     _mount_frontend(app, resolved_settings.frontend_dist)
     return app

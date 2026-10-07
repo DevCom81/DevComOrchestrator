@@ -172,6 +172,8 @@ class TechReviewDto(BaseModel):
     reservation_status: str | None = None
     code_snapshot_id: str | None = None
     code_sources: CodeSourcesDto | None = None
+    uncertainty_ack_at: datetime | None = None
+    uncertainty_ack_reason: str | None = None
 
 
 class TechReviewListDto(BaseModel):

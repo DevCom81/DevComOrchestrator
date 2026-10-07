@@ -31,10 +31,15 @@ from devcom.modules.missions.application.get_mission import GetMission
 from devcom.modules.missions.application.list_missions import ListMissions
 from devcom.modules.missions.application.orchestrator import MissionOrchestrator
 from devcom.modules.missions.tech.adapters.scenario_catalog import ScenarioCatalog
+from devcom.modules.missions.tech.adapters.sqlalchemy_events import SqlAlchemyEventStore
 from devcom.modules.missions.tech.adapters.sqlalchemy_steps import SqlAlchemyStepStore
+from devcom.modules.missions.tech.application.acknowledge_uncertainty import (
+    AcknowledgeUncertainty,
+)
 from devcom.modules.missions.tech.application.create_review import CreateTechReview
 from devcom.modules.missions.tech.application.decide_review import DecideTechReview
 from devcom.modules.missions.tech.application.get_review import GetTechReview
+from devcom.modules.missions.tech.application.list_events import ListTechEvents
 from devcom.modules.missions.tech.application.list_reviews import ListTechReviews
 from devcom.modules.missions.tech.application.list_scenarios import ListTechScenarios
 from devcom.modules.missions.tech.application.run_pipeline import RunTechPipeline
@@ -91,6 +96,9 @@ class ApplicationContainer:
     run_tech_pipeline: RunTechPipeline
     start_real_tech_review: StartRealTechReview
     decide_tech_review: DecideTechReview
+    acknowledge_uncertainty: AcknowledgeUncertainty
+    list_tech_events: ListTechEvents
+    event_store: SqlAlchemyEventStore
     budget_ledger: SqlAlchemyBudgetLedger
     step_store: SqlAlchemyStepStore
     openai_key_configured: bool
@@ -197,6 +205,9 @@ def _container(
         run_tech_pipeline=tech.run_tech_pipeline,
         start_real_tech_review=tech.start_real_tech_review,
         decide_tech_review=tech.decide_tech_review,
+        acknowledge_uncertainty=tech.acknowledge_uncertainty,
+        list_tech_events=tech.list_tech_events,
+        event_store=tech.event_store,
         budget_ledger=tech.budget_ledger,
         step_store=tech.step_store,
         openai_key_configured=tech.openai_key_configured,

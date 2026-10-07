@@ -62,6 +62,8 @@ class TechReview:
     failure_message: str | None = None
     frozen_models_json: str | None = None
     code_snapshot_id: str | None = None
+    uncertainty_ack_at: datetime | None = None
+    uncertainty_ack_reason: str | None = None
 
     @classmethod
     def create(
@@ -203,6 +205,17 @@ class TechReview:
             ),
         )
         self.status = TechReviewStatus.DECIDED
+        self.updated_at = stamp
+
+    def acknowledge_uncertainty(self, *, reason: str, now: datetime) -> None:
+        if self.status != TechReviewStatus.BLOCKED_UNCERTAIN:
+            raise TechConflictError("only blocked_uncertain reviews can be acknowledged")
+        if self.uncertainty_ack_at is not None:
+            return
+        text = _bounded(reason, 1, 500, "reason")
+        stamp = _utc(now)
+        self.uncertainty_ack_at = stamp
+        self.uncertainty_ack_reason = text
         self.updated_at = stamp
 
     def _find_proposal(self, proposal_id: str) -> Proposal:

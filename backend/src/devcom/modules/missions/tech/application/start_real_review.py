@@ -11,6 +11,7 @@ from devcom.modules.billing.domain.errors import (
     RealModeUnavailableError,
 )
 from devcom.modules.missions.domain.permission import PermissionPolicy
+from devcom.modules.missions.tech.adapters.sqlalchemy_events import SqlAlchemyEventStore
 from devcom.modules.missions.tech.adapters.sqlalchemy_steps import SqlAlchemyStepStore
 from devcom.modules.missions.tech.application.idempotency import (
     payload_hash,
@@ -46,6 +47,7 @@ class StartRealTechReview:
         repository: TechReviewRepository,
         steps: SqlAlchemyStepStore,
         ledger: SqlAlchemyBudgetLedger,
+        events: SqlAlchemyEventStore,
         runner: SupervisedRealRunner,
         policy: PermissionPolicy,
         idempotency: IdempotencyStore,
@@ -58,6 +60,7 @@ class StartRealTechReview:
         self._repository = repository
         self._steps = steps
         self._ledger = ledger
+        self._events = events
         self._runner = runner
         self._policy = policy
         self._idempotency = idempotency
@@ -96,6 +99,7 @@ class StartRealTechReview:
             TechReviewStatus.DECIDED,
             TechReviewStatus.FAILED_PARTIAL,
             TechReviewStatus.BLOCKED_UNCERTAIN,
+            TechReviewStatus.INTERRUPTED,
             TechReviewStatus.PAUSED_BUDGET,
         }:
             return review
@@ -141,6 +145,20 @@ class StartRealTechReview:
             idem_operation=IDEM_RUN,
             idem_key=command.idempotency_key,
             idem_hash=digest,
+        )
+        self._events.append(
+            review_id=review.id,
+            event_type="budget.reserved",
+            dedupe_key="budget.reserved:launch",
+            payload={"envelope_eur_micros": review.envelope_eur_micros or 0},
+            occurred_at=now,
+        )
+        self._events.append(
+            review_id=review.id,
+            event_type="review.started",
+            dedupe_key="review.started:launch",
+            payload={"execution_mode": "real"},
+            occurred_at=now,
         )
 
     def _require(self, review_id: str) -> TechReview:

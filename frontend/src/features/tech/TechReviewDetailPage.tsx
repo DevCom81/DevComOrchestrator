@@ -4,22 +4,20 @@ import { Link, useParams } from "react-router-dom";
 import { ErrorState } from "../../shared/ui/ErrorState";
 import { Spinner } from "../../shared/ui/Spinner";
 import { useAgentsQuery } from "../hq/useAgentsQuery";
-import { AdrPanel } from "./AdrPanel";
-import { AnalysesPanel } from "./AnalysesPanel";
-import { DecisionPanel } from "./DecisionPanel";
-import { ProposalsPanel } from "./ProposalsPanel";
-import { RealLaunchPanel } from "./RealLaunchPanel";
-import { RealStepsPanel } from "./RealStepsPanel";
-import { ReviewSourcesPanel } from "./ReviewSourcesPanel";
+import { AcknowledgeUncertaintyPanel } from "./AcknowledgeUncertaintyPanel";
+import { EventTimeline } from "./EventTimeline";
+import { PartialResultsNotice } from "./PartialResultsNotice";
+import { ReviewDetailBody } from "./ReviewDetailBody";
 import { ReviewStatusBanner } from "./ReviewStatusBanner";
-import { ScenarioSelectPanel } from "./ScenarioSelectPanel";
 import { techStatusLabel } from "./techTypes";
+import { useReviewEvents } from "./useReviewEvents";
 import { useTechReviewQuery } from "./useTechQueries";
 
 export function TechReviewDetailPage() {
   const params = useParams();
   const reviewId = params.reviewId ?? "";
   const reviewQuery = useTechReviewQuery(reviewId, true);
+  const events = useReviewEvents(reviewId, Boolean(reviewId));
   const agents = useAgentsQuery();
   const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null);
 
@@ -50,6 +48,7 @@ export function TechReviewDetailPage() {
   const selectedId = decidedId ?? selectedProposalId;
   const incomplete =
     review.status === "failed_partial" ||
+    review.status === "interrupted" ||
     review.status === "blocked_uncertain" ||
     review.status === "paused_budget";
 
@@ -57,21 +56,18 @@ export function TechReviewDetailPage() {
     <div className="tech-detail">
       <p>
         <Link to="/tech">← Revues TECH</Link>
+        {" · "}
+        <Link to={`/projects/${review.project_id}`}>Projet</Link>
       </p>
       <div className="tech-detail__header">
         <h2>Revue TECH ({review.execution_mode})</h2>
         <span className="mission-status">{techStatusLabel(review.status)}</span>
       </div>
       <ReviewStatusBanner review={review} />
+      <AcknowledgeUncertaintyPanel review={review} />
+      <EventTimeline events={events.events} loading={events.loading} />
       <p className="demo-disclaimer">{review.disclaimer}</p>
-      {incomplete ? (
-        <div className="error-state" role="status">
-          <p>
-            Résultats incomplets — aucune décision/ADR complète tant que le pipeline
-            n’est pas validé.
-          </p>
-        </div>
-      ) : null}
+      <PartialResultsNotice review={review} />
       {review.scenario_label_note ? (
         <p className="demo-disclaimer" role="status">
           {review.scenario_label_note}
@@ -84,33 +80,14 @@ export function TechReviewDetailPage() {
           {review.snapshot.captured_at}
         </p>
       ) : null}
-
-      <ReviewSourcesPanel sources={review.code_sources} />
-      {review.execution_mode === "demo" ? <ScenarioSelectPanel review={review} /> : null}
-      <RealLaunchPanel review={review} />
-      <RealStepsPanel review={review} />
-      <AnalysesPanel
-        analyses={review.analyses}
-        challenges={review.challenges}
-        synthesis={review.synthesis}
+      <ReviewDetailBody
+        review={review}
         agentNames={names}
-        showSlots={
-          review.analyses.length > 0 ||
-          review.synthesis != null ||
-          review.status === "awaiting_decision" ||
-          review.status === "decided" ||
-          incomplete
-        }
-      />
-      <ProposalsPanel
-        proposals={review.proposals}
+        incomplete={incomplete}
         selectedId={selectedId}
         decidedId={decidedId}
-        selectable={review.status === "awaiting_decision"}
         onSelect={setSelectedProposalId}
       />
-      <DecisionPanel review={review} proposalId={selectedId} />
-      <AdrPanel decision={review.decision} adr={review.adr} />
     </div>
   );
 }

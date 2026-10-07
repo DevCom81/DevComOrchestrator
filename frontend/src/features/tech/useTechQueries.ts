@@ -26,6 +26,7 @@ export function useTechReviewQuery(reviewId: string, pollWhileRunning = false) {
         return false;
       }
       const status = query.state.data?.status;
+      // Polling de secours (0 LLM) si SSE indisponible.
       return status === "running" ? 2000 : false;
     },
   });
@@ -90,6 +91,22 @@ export function useDecideTechReviewMutation(reviewId: string) {
       idempotency_key: string;
     }) =>
       apiSend<TechReviewDto>(`/api/tech/reviews/${reviewId}/decision`, "POST", body),
+    onSuccess: (data) => {
+      client.setQueryData(["tech-review", reviewId], data);
+      void client.invalidateQueries({ queryKey: ["tech-reviews"] });
+    },
+  });
+}
+
+export function useAcknowledgeUncertaintyMutation(reviewId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { reason: string; idempotency_key: string }) =>
+      apiSend<TechReviewDto>(
+        `/api/tech/reviews/${reviewId}/acknowledge-uncertainty`,
+        "POST",
+        body,
+      ),
     onSuccess: (data) => {
       client.setQueryData(["tech-review", reviewId], data);
       void client.invalidateQueries({ queryKey: ["tech-reviews"] });

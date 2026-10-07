@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "verified_at": "2026-10-07",
+  "seq_scope": "per_review",
+  "types": [
+    "review.created",
+    "review.started",
+    "step.started",
+    "step.completed",
+    "step.failed",
+    "step.uncertain",
+    "review.interrupted",
+    "review.blocked_uncertain",
+    "review.terminal",
+    "budget.reserved",
+    "budget.usage",
+    "budget.settled",
+    "budget.uncertain_held",
+    "uncertainty.acknowledged"
+  ],
+  "rules": [
+    "No secrets, API keys, source file contents, or full prompts in payloads.",
+    "Payloads carry ids, step_key, status, cost_status, micros, short messages only.",
+    "SSE and GET /events never trigger LLM calls.",
+    "Reconciliation must not insert duplicate events for the same transition key."
+  ]
+}

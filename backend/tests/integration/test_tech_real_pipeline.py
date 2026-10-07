@@ -80,6 +80,9 @@ def _wait_terminal(client: TestClient, review_id: str) -> dict:
         final = polled.json()
         if final["status"] == "running":
             continue
+        # Ambiguous cost may keep reservation held intentionally.
+        if final["status"] == "blocked_uncertain":
+            return final
         # Avoid racing the finally settle when status flips first.
         if final.get("reservation_status") == "held":
             continue

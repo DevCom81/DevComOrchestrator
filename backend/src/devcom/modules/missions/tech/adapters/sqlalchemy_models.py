@@ -48,6 +48,31 @@ class TechReviewRow(Base):
     failure_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     frozen_models_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     code_snapshot_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    uncertainty_ack_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    uncertainty_ack_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class TechReviewEventRow(Base):
+    __tablename__ = "tech_review_events"
+    __table_args__ = (
+        UniqueConstraint("review_id", "seq", name="uq_tech_review_events_seq"),
+        UniqueConstraint("review_id", "dedupe_key", name="uq_tech_review_events_dedupe"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    review_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("tech_reviews.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    seq: Mapped[int] = mapped_column(Integer, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    dedupe_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
 
 
 class TechPipelineStepRow(Base):

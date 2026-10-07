@@ -107,3 +107,10 @@ class SqlAlchemyStepStore:
                 row.error_message = "interrupted before confirmed persistence"
             session.commit()
             return len(rows)
+
+    def list_uncertain_keys(self) -> list[tuple[str, str]]:
+        with self._sessions() as session:
+            rows = session.scalars(
+                select(TechPipelineStepRow).where(TechPipelineStepRow.status == "uncertain")
+            ).all()
+            return [(row.review_id, row.step_key) for row in rows]

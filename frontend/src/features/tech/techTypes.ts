@@ -4,9 +4,26 @@ export type TechReviewStatus =
   | "running"
   | "awaiting_decision"
   | "failed_partial"
+  | "interrupted"
   | "blocked_uncertain"
   | "paused_budget"
   | "decided";
+
+export type TechEventDto = {
+  id: string;
+  review_id: string;
+  seq: number;
+  event_type: string;
+  occurred_at: string;
+  payload: Record<string, unknown>;
+};
+
+export type TechEventListDto = {
+  review_id: string;
+  after_seq: number;
+  latest_seq: number;
+  items: TechEventDto[];
+};
 
 export type ExecutionMode = "demo" | "real";
 
@@ -150,6 +167,8 @@ export type TechReviewDto = {
   reservation_status: string | null;
   code_snapshot_id: string | null;
   code_sources: CodeSourcesDto | null;
+  uncertainty_ack_at: string | null;
+  uncertainty_ack_reason: string | null;
 };
 
 export type CodeSourceFileDto = {
@@ -201,6 +220,8 @@ export function techStatusLabel(status: TechReviewStatus): string {
       return "Décision requise";
     case "failed_partial":
       return "Échec partiel";
+    case "interrupted":
+      return "Interrompue";
     case "blocked_uncertain":
       return "Bloquée (incertain)";
     case "paused_budget":

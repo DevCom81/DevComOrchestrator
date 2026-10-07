@@ -290,12 +290,15 @@ Chaque tranche inclut domaine, cas d'usage, persistance/migrations si utiles, AP
 | 2 | Mission TECH complète avec adapters fictifs | Avis, contradiction, propositions, choix et ADR via UI |
 | 3 | Budget et premier fournisseur IA réel | Réservation concurrente, refus au plafond, résultat réel et coût |
 | 4 | Contexte code local vérifiable pour TECH | Root lecture seule, preview figé, snapshot immuable, sources de revue |
-| 5 | Plan Cursor, GO séparé, export et retour de diff | Choix sans modification du code ; revue de l'implémentation importée |
-| — | TECH durable, erreurs et SSE (**reporté** après LOT 4) | Reconnexion, redémarrage, annulation et absence de duplication |
-| 6 | MAIL quotidien sur un compte réel | Lire, classer, préparer puis envoyer uniquement après GO |
-| 7 | SALES réel, sources et relais MAIL | Prospect sourcé, dossier, brouillon, réponse rattachée |
-| 8 | SOCIAL quotidien | Historique, variantes, retouche, version finale et export/publication disponible |
-| 9 | Stabilisation et démonstration globale | Sauvegarde/restauration, installation documentée et parcours multiéquipes |
+| 5 | TECH durable, événements, SSE et polling | Interruption vs incertitude ; 0 LLM sur GET/SSE ; liste projet |
+| 6 | Plan Cursor, GO séparé, export et retour de diff | Choix sans modification du code ; revue de l'implémentation importée |
+| 7 | MAIL quotidien sur un compte réel | Lire, classer, préparer puis envoyer uniquement après GO |
+| 8 | SALES réel, sources et relais MAIL | Prospect sourcé, dossier, brouillon, réponse rattachée |
+| 9 | SOCIAL quotidien | Historique, variantes, retouche, version finale et export/publication disponible |
+| 10 | Sauvegarde, restauration, installation | Cycle backup/restore ; README clone neuf |
+| 11 | Stabilisation et démonstration publique V1 | Scénario multi-équipes sans secrets ; gate V1 |
+
+Numérotation de référence : `docs/ROADMAP_V1.md` (12 lots 0–11). Les lots ≥ 6 restent des propositions jusqu’à GO.
 
 Le lot 3 active les appels payants seulement après validation des garde-fous. Chaque lot est subdivisé si plusieurs règles exigent des validations séparées. L'ordre peut être ajusté par décision explicite, sans retirer une condition de livraison.
 

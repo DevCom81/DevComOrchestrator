@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlalchemy import select
@@ -54,6 +54,8 @@ def to_row(review: TechReview) -> TechReviewRow:
         failure_message=review.failure_message,
         frozen_models_json=review.frozen_models_json,
         code_snapshot_id=review.code_snapshot_id,
+        uncertainty_ack_at=review.uncertainty_ack_at,
+        uncertainty_ack_reason=review.uncertainty_ack_reason,
     )
 
 
@@ -101,7 +103,17 @@ def from_row(session: Session, row: TechReviewRow) -> TechReview:
         failure_message=row.failure_message,
         frozen_models_json=row.frozen_models_json,
         code_snapshot_id=getattr(row, "code_snapshot_id", None),
+        uncertainty_ack_at=_aware(row.uncertainty_ack_at),
+        uncertainty_ack_reason=row.uncertainty_ack_reason,
     )
+
+
+def _aware(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value
 
 
 def _load_decision_adr(
