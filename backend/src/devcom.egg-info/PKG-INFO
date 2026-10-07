@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: devcom
+Version: 0.1.0
+Summary: DevCom Command Center — local demo foundation
+Requires-Python: >=3.12
+Requires-Dist: fastapi<0.116,>=0.115.0
+Requires-Dist: uvicorn[standard]<0.33,>=0.32.0
+Requires-Dist: pydantic<3,>=2.9.0
+Requires-Dist: pydantic-settings<3,>=2.6.0
+Requires-Dist: sqlalchemy<2.1,>=2.0.36
+Requires-Dist: alembic<1.15,>=1.14.0
+Provides-Extra: dev
+Requires-Dist: pytest<9,>=8.3.0; extra == "dev"
+Requires-Dist: httpx<0.28,>=0.27.0; extra == "dev"
+Requires-Dist: ruff<0.9,>=0.8.0; extra == "dev"
+Requires-Dist: mypy<2,>=1.13.0; extra == "dev"

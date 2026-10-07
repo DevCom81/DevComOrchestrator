@@ -1,0 +1,77 @@
+:root {
+  --color-marine-950: #07111f;
+  --color-marine-900: #0b1a2e;
+  --color-marine-800: #12243c;
+  --color-marine-700: #1a3352;
+  --color-cream: #f4f1ea;
+  --color-cream-strong: #fffdf8;
+  --color-turquoise: #2ec4b6;
+  --color-turquoise-deep: #1aa89b;
+  --color-text-on-dark: #f7fafc;
+  --color-text-muted: #9db0c7;
+  --color-danger: #e45858;
+  --color-ok: #3ecf8e;
+  --shadow-card: 0 10px 28px rgba(3, 12, 24, 0.28);
+  --radius-card: 1.1rem;
+  --radius-pill: 999px;
+  --font-display: "Manrope", "Segoe UI", sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", sans-serif;
+  --sidebar-width: 5.5rem;
+  --focus-ring: 0 0 0 3px rgba(46, 196, 182, 0.55);
+
+  --accent-architecte: #2f6fed;
+  --accent-cyber: #8b5cf6;
+  --accent-qa: #22c55e;
+  --accent-devops: #f97316;
+  --accent-fullstack: #14b8a6;
+  --accent-sql_data: #3b82f6;
+  --accent-synthetiseur_tech: #94a3b8;
+  --accent-vendeur: #f07167;
+  --accent-secretaire: #d4a017;
+  --accent-social: #ec4899;
+  --accent-dispatcher: #64748b;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-text-on-dark);
+  background:
+    radial-gradient(circle at top right, rgba(46, 196, 182, 0.12), transparent 35%),
+    linear-gradient(160deg, var(--color-marine-950), var(--color-marine-900) 45%, #0e2036);
+}
+
+button,
+input,
+textarea,
+a {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

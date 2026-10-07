@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "agents": [
+    {
+      "id": "architecte",
+      "display_name": "Architecte",
+      "specialty_bullets": [
+        "DDD, hexagonal et SOLID",
+        "Frontières et dépendances",
+        "Évolution et dette technique"
+      ]
+    },
+    {
+      "id": "cyber",
+      "display_name": "Cyber",
+      "specialty_bullets": [
+        "Menaces, auth et droits",
+        "Secrets et exposition",
+        "Vulnérabilités et mitigations"
+      ]
+    },
+    {
+      "id": "qa",
+      "display_name": "QA",
+      "specialty_bullets": [
+        "Tests et cas limites",
+        "Testabilité et régressions",
+        "Critères d'acceptation"
+      ]
+    },
+    {
+      "id": "devops",
+      "display_name": "DevOps",
+      "specialty_bullets": [
+        "CI/CD et infrastructure",
+        "Observabilité et disponibilité",
+        "Rollback et coûts infra"
+      ]
+    },
+    {
+      "id": "fullstack",
+      "display_name": "FullStack",
+      "specialty_bullets": [
+        "Faisabilité frontend et backend",
+        "Contrats API",
+        "Performances applicatives"
+      ]
+    },
+    {
+      "id": "sql_data",
+      "display_name": "SQL / Data",
+      "specialty_bullets": [
+        "Schémas et intégrité",
+        "Transactions et index",
+        "Migrations"
+      ]
+    },
+    {
+      "id": "synthetiseur_tech",
+      "display_name": "Synthétiseur TECH",
+      "specialty_bullets": [
+        "Synthèse des avis spécialisés",
+        "Options et désaccords documentés",
+        "Sans inventer d'expertise"
+      ]
+    },
+    {
+      "id": "vendeur",
+      "display_name": "Vendeur",
+      "specialty_bullets": [
+        "Recherche et qualification",
+        "Argumentaire commercial",
+        "Suivi commercial"
+      ]
+    },
+    {
+      "id": "secretaire",
+      "display_name": "Secrétaire",
+      "specialty_bullets": [
+        "Tri et classification de mails",
+        "Résumés et brouillons",
+        "Routage des échanges"
+      ]
+    },
+    {
+      "id": "social",
+      "display_name": "Social",
+      "specialty_bullets": [
+        "Ligne éditoriale",
+        "Idées et contenus",
+        "Calendrier éditorial"
+      ]
+    },
+    {
+      "id": "dispatcher",
+      "display_name": "Dispatcher",
+      "specialty_bullets": [
+        "Classification de l'intention",
+        "Proposition de routage",
+        "Aucun avis sur le fond"
+      ]
+    }
+  ]
+}

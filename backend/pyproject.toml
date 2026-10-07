@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=75.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devcom"
+version = "0.1.0"
+description = "DevCom Command Center — local demo foundation"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115.0,<0.116",
+  "uvicorn[standard]>=0.32.0,<0.33",
+  "pydantic>=2.9.0,<3",
+  "pydantic-settings>=2.6.0,<3",
+  "sqlalchemy>=2.0.36,<2.1",
+  "alembic>=1.14.0,<1.15",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0,<9",
+  "httpx>=0.27.0,<0.28",
+  "ruff>=0.8.0,<0.9",
+  "mypy>=1.13.0,<2",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["devcom"]
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["alembic.*"]
+ignore_missing_imports = true
