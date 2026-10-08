@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { TechReviewDto } from "./techTypes";
 import { newIdempotencyKey } from "./techTypes";
 import type { ApprovalDto, CursorExportDto, CursorPlanDto } from "./cursorTypes";
+import { CursorExecutePanel } from "./CursorExecutePanel";
 import { CursorExportImport } from "./CursorExportImport";
 import { CursorGoPanel } from "./CursorGoPanel";
 import { CursorPlanEditor } from "./CursorPlanEditor";
@@ -64,7 +65,7 @@ function CursorPlanWorkflow({ plan }: { plan: CursorPlanDto }) {
 
   useEffect(() => {
     setDraft(sectionsFrom(plan));
-  }, [plan.id, plan.plan_version]);
+  }, [plan]);
 
   const busy =
     update.isPending ||
@@ -119,6 +120,7 @@ function CursorPlanWorkflow({ plan }: { plan: CursorPlanDto }) {
           )
         }
       />
+      <CursorExecutePanel plan={plan} />
       <CursorExportImport
         canExport={approval?.status === "granted" || plan.status === "go_granted"}
         exportItem={exportItem}

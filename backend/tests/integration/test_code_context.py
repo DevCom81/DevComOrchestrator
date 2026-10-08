@@ -26,6 +26,8 @@ def real_settings(tmp_path: Path) -> Settings:
     settings = Settings(
         mode="real",
         llm_adapter="fake",
+        cursor_adapter="real",
+        cursor_api_key="test-key-not-for-live-calls",
         host="127.0.0.1",
         port=8765,
         data_dir=tmp_path / "data",

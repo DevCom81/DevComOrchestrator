@@ -12,6 +12,7 @@ from devcom.bootstrap.settings import Settings, get_settings
 from devcom.entrypoints.http.error_handlers import register_error_handlers
 from devcom.entrypoints.http.routers import (
     agents,
+    cursor_executions,
     cursor_plans,
     health,
     missions,
@@ -52,6 +53,7 @@ def create_app(
     app.include_router(tech_reviews.router)
     app.include_router(tech_events.router)
     app.include_router(cursor_plans.router)
+    app.include_router(cursor_executions.router)
 
     _mount_frontend(app, resolved_settings.frontend_dist)
     return app

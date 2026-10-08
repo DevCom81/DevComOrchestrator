@@ -35,6 +35,7 @@ class CursorPlan:
     content_hash: str
     canon_version: str
     active_approval_id: str | None
+    corrections_used: int
     created_at: datetime
     updated_at: datetime
 
@@ -85,6 +86,7 @@ class CursorPlan:
             content_hash=content_hash,
             canon_version=CANON_VERSION,
             active_approval_id=None,
+            corrections_used=0,
             created_at=stamp,
             updated_at=stamp,
         )
@@ -115,7 +117,17 @@ class CursorPlan:
         self.metadata_json = canon.manifest_json(canon.metadata_without_hash(meta))
         self.status = CursorPlanStatus.DRAFT
         self.active_approval_id = None
+        self.corrections_used = 0
         self.updated_at = _utc(now)
+
+    def register_correction(self) -> None:
+        from devcom.modules.missions.tech.cursor.domain.execution_status import (
+            MAX_CORRECTIONS_PER_PLAN_VERSION,
+        )
+
+        if self.corrections_used >= MAX_CORRECTIONS_PER_PLAN_VERSION:
+            raise CursorConflictError("correction limit reached for this plan version")
+        self.corrections_used += 1
 
     def expect_version(self, expected: int) -> None:
         if expected != self.plan_version:

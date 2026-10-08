@@ -1,19 +1,23 @@
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from devcom.bootstrap.env_loader import load_dotenv_file
+
 REPO_ROOT = Path(__file__).resolve().parents[4]
+BACKEND_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_DATA_DIR = Path.home() / ".local" / "share" / "devcom" / "demo"
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="DEVCOM_",
-        env_file=".env",
+        env_file=None,
         extra="ignore",
     )
 
@@ -30,6 +34,9 @@ class Settings(BaseSettings):
     monthly_budget_eur_micros: int = 50_000_000
     review_budget_eur_micros: int = 1_000_000
     llm_adapter: str = "openai"
+    cursor_adapter: str = "fake"
+    openai_api_key: str | None = None
+    cursor_api_key: str | None = None
 
     @field_validator("mode")
     @classmethod
@@ -44,6 +51,29 @@ class Settings(BaseSettings):
         if value not in {"openai", "fake"}:
             raise ValueError("DEVCOM_LLM_ADAPTER must be openai or fake")
         return value
+
+    @field_validator("cursor_adapter")
+    @classmethod
+    def allowed_cursor(cls, value: str) -> str:
+        if value not in {"fake", "real"}:
+            raise ValueError("DEVCOM_CURSOR_ADAPTER must be fake or real")
+        return value
+
+    @model_validator(mode="after")
+    def real_mode_adapters(self) -> Settings:
+        if self.mode != "real":
+            return self
+        if self.cursor_adapter == "fake":
+            raise ValueError(
+                "DEVCOM_MODE=real forbids DEVCOM_CURSOR_ADAPTER=fake "
+                "(no silent Fake substitution)"
+            )
+        if not (self.cursor_api_key and self.cursor_api_key.strip()):
+            raise ValueError(
+                "DEVCOM_MODE=real requires CURSOR_API_KEY "
+                "(set in environment or backend/.env — value never logged)"
+            )
+        return self
 
     @property
     def real_mode_enabled(self) -> bool:
@@ -132,6 +162,12 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    settings = Settings()
+    load_dotenv_file(BACKEND_ROOT / ".env")
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    cursor_key = os.environ.get("CURSOR_API_KEY")
+    settings = Settings(
+        openai_api_key=openai_key if openai_key else None,
+        cursor_api_key=cursor_key if cursor_key else None,
+    )
     settings.ensure_data_dir()
     return settings

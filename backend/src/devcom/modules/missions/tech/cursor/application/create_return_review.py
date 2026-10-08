@@ -55,19 +55,28 @@ class CreateReturnTechReview:
         plan = self._plans.get_plan(item["plan_id"])
         if plan is None:
             raise CursorNotFoundError("cursor plan not found")
-        export = self._plans.get_export(item["export_id"])
-        if export is None:
-            raise CursorNotFoundError("export not found")
+        export_id = item.get("export_id")
+        execution_id = item.get("execution_id")
+        if export_id:
+            export = self._plans.get_export(export_id)
+            if export is None:
+                raise CursorNotFoundError("export not found")
+            export_ref = f"export_id={export['id']} export_hash={export['content_hash']}"
+        elif execution_id:
+            export_ref = f"execution_id={execution_id} plan_hash={plan.content_hash}"
+        else:
+            raise CursorConflictError("return missing export_id and execution_id")
         # Ensure payload files exist (immutable context material).
         _ = self._artifacts.read_text(item["artifact_dir"], "report.txt")
         _ = self._artifacts.read_text(item["artifact_dir"], "diff.patch")
         request = (
             f"Revue du retour Cursor return_id={item['id']} "
-            f"export_id={export['id']} export_hash={export['content_hash']} "
+            f"{export_ref} "
             f"report_sha={item['report_sha256']} diff_sha={item['diff_sha256']} "
             f"verification={item['verification_status']}. "
             "Le contexte immuable (rapport+diff) est attaché au retour ; "
             "les déclarations de tests Cursor ne sont pas des preuves. "
+            "Lancement IA explicite avec budget — aucun coût sur GET. "
             "Prévisualiser le contexte avant tout lancement."
         )
         review = self._create.execute(

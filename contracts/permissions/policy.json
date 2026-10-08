@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "default_effect": "deny",
   "tools_enabled": false,
   "actions": [
@@ -74,6 +74,36 @@
       "effect": "allow",
       "permission_class": "MODIFY",
       "description": "Importer rapport et diff Cursor comme artefacts non fiables"
+    },
+    {
+      "id": "cursor.execution.request_go",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Demander un GO d'exécution Cursor lié au paquet et à la base Git"
+    },
+    {
+      "id": "cursor.execution.start",
+      "effect": "allow",
+      "permission_class": "EXTERNAL",
+      "description": "Démarrer une exécution Cursor — exige GO execute consommé"
+    },
+    {
+      "id": "cursor.execution.cancel",
+      "effect": "allow",
+      "permission_class": "MODIFY",
+      "description": "Demander l'arrêt d'une exécution Cursor"
+    },
+    {
+      "id": "cursor.integrate.request_go",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Demander un GO d'intégration locale (branche + commit)"
+    },
+    {
+      "id": "cursor.integrate.apply",
+      "effect": "allow",
+      "permission_class": "EXTERNAL",
+      "description": "Appliquer la capture dans un worktree d'intégration — exige GO"
     }
   ]
 }

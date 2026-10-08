@@ -149,7 +149,7 @@ def build_container(settings: Settings) -> ApplicationContainer:
     )
     cursor = build_cursor_services(
         sessions=sessions,
-        data_dir=settings.data_dir,
+        settings=settings,
         reviews=tech.tech_repository,
         create_review=tech.create_tech_review,
         policy=policy,

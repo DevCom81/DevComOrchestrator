@@ -133,6 +133,7 @@ def _plan_row(plan: CursorPlan) -> CursorPlanRow:
         content_hash=plan.content_hash,
         canon_version=plan.canon_version,
         active_approval_id=plan.active_approval_id,
+        corrections_used=plan.corrections_used,
         created_at=plan.created_at,
         updated_at=plan.updated_at,
     )
@@ -160,6 +161,7 @@ def _plan_from(row: CursorPlanRow) -> CursorPlan:
         content_hash=row.content_hash,
         canon_version=row.canon_version,
         active_approval_id=row.active_approval_id,
+        corrections_used=int(getattr(row, "corrections_used", 0) or 0),
         created_at=_aware(row.created_at),
         updated_at=_aware(row.updated_at),
     )
@@ -191,6 +193,7 @@ def _return_dict(row: CursorReturnRow) -> dict[str, Any]:
         "id": row.id,
         "plan_id": row.plan_id,
         "export_id": row.export_id,
+        "execution_id": getattr(row, "execution_id", None),
         "project_id": row.project_id,
         "report_sha256": row.report_sha256,
         "diff_sha256": row.diff_sha256,

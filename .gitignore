@@ -1,5 +1,6 @@
 # Private / runtime
 .env
+backend/.env
 *.sqlite
 *.sqlite-journal
 *.sqlite-wal

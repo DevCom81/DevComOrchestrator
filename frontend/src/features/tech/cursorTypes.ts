@@ -17,6 +17,7 @@ export type CursorPlanDto = {
   content_hash: string;
   canon_version: string;
   active_approval_id: string | null;
+  corrections_used: number;
   preview_text: string;
   created_at: string;
   updated_at: string;
@@ -50,7 +51,8 @@ export type CursorExportDto = {
 export type CursorReturnDto = {
   id: string;
   plan_id: string;
-  export_id: string;
+  export_id: string | null;
+  execution_id?: string | null;
   project_id: string;
   report_sha256: string;
   diff_sha256: string;
@@ -64,10 +66,52 @@ export type CursorReturnDto = {
   imported_at: string;
 };
 
+export type CursorExecutionDto = {
+  id: string;
+  plan_id: string;
+  project_id: string;
+  status: string;
+  correction_index: number;
+  content_hash: string;
+  git_base_commit: string;
+  model_id: string;
+  cancel_requested: boolean;
+  writes_stable: boolean;
+  capture_manifest_sha: string | null;
+  capture_incomplete: boolean;
+  return_id: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CursorIntegrationDto = {
+  id: string;
+  execution_id: string;
+  status: string;
+  branch_name: string;
+  commit_sha: string | null;
+  worktree_path: string | null;
+  summary: string | null;
+  merge_hint: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ExecutePreviewDto = {
+  payload: Record<string, unknown>;
+  payload_hash: string;
+  payload_json: string;
+  budget_layers: Record<string, unknown>;
+  approval: ApprovalDto;
+};
+
 export type ReturnContextDto = {
   return_id: string;
   plan_id: string;
-  export_id: string;
+  export_id: string | null;
+  execution_id?: string | null;
   export_content_hash: string;
   export_plan_version: number;
   code_snapshot_id: string | null;

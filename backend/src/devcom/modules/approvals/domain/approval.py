@@ -88,14 +88,29 @@ class ApprovalRequest:
         resource_version: int,
         now: datetime,
     ) -> None:
+        self.consume_granted(
+            payload_hash=payload_hash,
+            resource_version=resource_version,
+            now=now,
+            mismatch_message="approval does not match current package",
+        )
+
+    def consume_granted(
+        self,
+        *,
+        payload_hash: str,
+        resource_version: int,
+        now: datetime,
+        mismatch_message: str = "approval payload mismatch",
+    ) -> None:
         stamp = _utc(now)
         if stamp >= self.expires_at:
             self.status = ApprovalStatus.EXPIRED
-            raise ApprovalConflictError("approval expired — cannot create new export")
+            raise ApprovalConflictError("approval expired")
         if self.status != ApprovalStatus.GRANTED:
             raise ApprovalConflictError(f"approval status is {self.status.value}")
         if self.payload_hash != payload_hash or self.resource_version != resource_version:
-            raise ApprovalConflictError("approval does not match current package")
+            raise ApprovalConflictError(mismatch_message)
         self.status = ApprovalStatus.CONSUMED
         self.consumed_at = stamp
 

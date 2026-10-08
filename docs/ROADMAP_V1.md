@@ -147,8 +147,8 @@ Les **portraits PNG** et le **HQ actuel** sont **dans la V1**.
 | 0–4 | Validés | Fondation → code |
 | 5 | Validé | Durabilité / SSE |
 | 6 | Fondation livrée | Paquet / GO / export / retour |
-| **6A** | GO préparation | Spike liaison Cursor (preuve) |
-| **6B** | Après 6A | Adapter Cursor intégré |
+| **6A** | Validé | Spike liaison Cursor (preuve) |
+| **6B** | Implémenté | Adapter Cursor intégré (validation manuelle) |
 | 7 | À valider | MAIL réel |
 | 8 | À valider | SALES + Brave |
 | 9 | À valider | SOCIAL |

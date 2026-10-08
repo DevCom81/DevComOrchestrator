@@ -26,6 +26,7 @@ class CursorPlanDto(BaseModel):
     content_hash: str
     canon_version: str
     active_approval_id: str | None
+    corrections_used: int
     preview_text: str
     created_at: datetime
     updated_at: datetime
@@ -112,7 +113,8 @@ class CursorReturnDto(BaseModel):
 
     id: str
     plan_id: str
-    export_id: str
+    export_id: str | None
+    execution_id: str | None = None
     project_id: str
     report_sha256: str
     diff_sha256: str
@@ -131,7 +133,8 @@ class ReturnContextDto(BaseModel):
 
     return_id: str
     plan_id: str
-    export_id: str
+    export_id: str | None
+    execution_id: str | None = None
     export_content_hash: str
     export_plan_version: int
     code_snapshot_id: str | None
@@ -153,3 +156,84 @@ class CreateReturnReviewBody(BaseModel):
 
     idempotency_key: str = Field(min_length=1, max_length=128)
     execution_mode: str = Field(default="demo", pattern="^(demo|real)$")
+
+
+class RequestExecuteGoBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_version: int = Field(ge=1)
+    idempotency_key: str = Field(min_length=1, max_length=128)
+    source_root: str = Field(min_length=1, max_length=4096)
+    correction: bool = False
+    prior_execution_id: str | None = None
+    review_observations: str = Field(default="", max_length=8000)
+
+
+class StartExecutionBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    approval_id: str = Field(min_length=1, max_length=36)
+    idempotency_key: str = Field(min_length=1, max_length=128)
+    payload_json: str = Field(min_length=2)
+    payload_hash: str = Field(min_length=64, max_length=64)
+
+
+class ExecutePreviewDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    payload: dict[str, object]
+    payload_hash: str
+    payload_json: str
+    budget_layers: dict[str, object]
+    approval: ApprovalDto
+
+
+class CursorExecutionDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    plan_id: str
+    project_id: str
+    status: str
+    correction_index: int
+    content_hash: str
+    git_base_commit: str
+    model_id: str
+    cancel_requested: bool
+    writes_stable: bool
+    capture_manifest_sha: str | None
+    capture_incomplete: bool
+    return_id: str | None
+    error_message: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class IntegratePreviewDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    preview: dict[str, object]
+    approval: ApprovalDto
+
+
+class CursorIntegrationDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    execution_id: str
+    status: str
+    branch_name: str
+    commit_sha: str | None
+    worktree_path: str | None
+    summary: str | None
+    merge_hint: str | None
+    error_message: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class ApplyIntegrateBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    approval_id: str = Field(min_length=1, max_length=36)
+    idempotency_key: str = Field(min_length=1, max_length=128)

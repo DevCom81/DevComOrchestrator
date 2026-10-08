@@ -14,3 +14,5 @@ class ApprovalStatus(StrEnum):
 
 
 ACTION_CURSOR_EXPORT = "cursor.plan.export"
+ACTION_CURSOR_EXECUTE = "cursor.plan.execute"
+ACTION_CURSOR_INTEGRATE = "cursor.execution.integrate"

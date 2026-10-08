@@ -4,9 +4,12 @@ import { apiGet, apiSend } from "../../shared/api/client";
 import type { TechReviewDto } from "./techTypes";
 import type {
   ApprovalDto,
+  CursorExecutionDto,
   CursorExportDto,
+  CursorIntegrationDto,
   CursorPlanDto,
   CursorReturnDto,
+  ExecutePreviewDto,
   ReturnContextDto,
 } from "./cursorTypes";
 
@@ -124,6 +127,100 @@ export function useCreateReturnReviewMutation(returnId: string) {
         `/api/cursor/returns/${returnId}/tech-review`,
         "POST",
         body,
+      ),
+  });
+}
+
+export function useCursorExecutionsQuery(planId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ["cursor-executions", planId],
+    queryFn: () =>
+      apiGet<{ items: CursorExecutionDto[] }>(
+        `/api/cursor/plans/${planId}/executions`,
+      ),
+    enabled: Boolean(planId) && enabled,
+    refetchInterval: (query) => {
+      const items = query.state.data?.items ?? [];
+      const busy = items.some((item) =>
+        ["intent", "running", "cancel_requested"].includes(item.status),
+      );
+      return busy ? 2000 : false;
+    },
+  });
+}
+
+export function useRequestExecuteGoMutation(planId: string) {
+  return useMutation({
+    mutationFn: (body: Record<string, string | number | boolean | null>) =>
+      apiSend<ExecutePreviewDto>(
+        `/api/cursor/plans/${planId}/request-execute-go`,
+        "POST",
+        body,
+      ),
+  });
+}
+
+export function useStartExecutionMutation(planId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      approval_id: string;
+      idempotency_key: string;
+      payload_json: string;
+      payload_hash: string;
+    }) =>
+      apiSend<CursorExecutionDto>(
+        `/api/cursor/plans/${planId}/executions`,
+        "POST",
+        body,
+      ),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ["cursor-executions", planId] });
+      void client.invalidateQueries({ queryKey: ["cursor-returns", planId] });
+    },
+  });
+}
+
+export function useCancelExecutionMutation(planId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (executionId: string) =>
+      apiSend<CursorExecutionDto>(
+        `/api/cursor/executions/${executionId}/cancel`,
+        "POST",
+        {},
+      ),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ["cursor-executions", planId] });
+    },
+  });
+}
+
+export function useRequestIntegrateGoMutation() {
+  return useMutation({
+    mutationFn: (args: { executionId: string; idempotency_key: string }) =>
+      apiSend<{ preview: Record<string, unknown>; approval: ApprovalDto }>(
+        `/api/cursor/executions/${args.executionId}/request-integrate-go`,
+        "POST",
+        { idempotency_key: args.idempotency_key },
+      ),
+  });
+}
+
+export function useApplyIntegrateMutation() {
+  return useMutation({
+    mutationFn: (args: {
+      executionId: string;
+      approval_id: string;
+      idempotency_key: string;
+    }) =>
+      apiSend<CursorIntegrationDto>(
+        `/api/cursor/executions/${args.executionId}/integrate`,
+        "POST",
+        {
+          approval_id: args.approval_id,
+          idempotency_key: args.idempotency_key,
+        },
       ),
   });
 }

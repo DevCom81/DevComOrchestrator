@@ -2,31 +2,49 @@
 
 ## Statut
 
-Plan uniquement — **interdit** avant preuve LOT 6A verte + GO 6B explicite.
+Implémenté — validation manuelle (doubles) ; smoke UI réel lancé par Jérôme.
 
 ## Objectif
 
-Intégrer dans le monolithe DevCom un port/adapter Cursor qui réutilise la
-fondation LOT 6 (paquet, GO, export, retour) pour le parcours nominal :
+Parcours HQ : plan → GO execute → Cursor → retour auto → revue → corrections
+bornées → intégration branche locale (GO) ; manuel = dépannage.
 
-invoke → suivi/cancel → capture changements → retour rattaché → validation
-locale → revue. Import/export manuel = dépannage UI.
+## Critères
 
-## Périmètre prévu (après GO)
-
-- Port `CursorAgentPort` (create/send/stream/cancel/status) ; adapter SDK Python.
-- Worktree isolé par run ; politique sandbox versionnée.
-- Capture complète (suivis / indexés / nouveaux) + artefacts hashés.
-- Budget : réservation avant `send` ; un run sans retry auto par défaut.
-- Événements durables (pattern LOT 5) ; états interrupted / uncertain.
-- UI : lancer, suivre, arrêter, consulter preuves (pas le texte agent comme vérité).
+- [ ] GO execute distinct (paquet, base Git propre, modèle, permissions, budget)
+- [ ] Chaque send = nouveau GO ; corrections ≤ 2 / version (persistées)
+- [ ] Intention avant invoke ; start idempotent ; pas de double send
+- [ ] Cancel demandé ≠ confirmé ; capture si écritures stables
+- [ ] Retour auto rattaché ; revue sans fichiers manuels
+- [ ] Intégration worktree + branche + commit local ; hint cherry-pick
+- [ ] Fake explicite démo ; réel sans clé = blocage clair
+- [ ] `.env` / `.env.example` / `devcom_start.sh`
+- [ ] Tests doubles verts ; zéro appel payant agent
 
 ## Exclusions
 
-MAIL ; push ; apply sur projets quotidiens sans GO ; nouveau `send` auto ;
-dépendance non épinglée ; démarrage avant 6A vert.
+LOT 7, spike 6A, push/merge implicites, retry auto.
 
-## Acceptation (cible)
+## Smoke produit (Jérôme)
 
-Parcours HQ : décision TECH → plan → GO → invoke Cursor → retour auto →
-validation locale visible → revue retour. Manuel disponible si SDK down.
+Après doubles verts : démarrer démo Fake, puis éventuellement un run réel UI
+unique avec clé — hors agent.
+
+## Commandes de validation (manuel)
+
+```bash
+cd backend
+source .venv/bin/activate
+export PYTHONPATH=src
+alembic upgrade head
+ruff check src tests && mypy src
+pytest -q tests/integration/test_cursor_lot6.py \
+  tests/integration/test_cursor_lot6b.py \
+  tests/integration/test_cursor_lot6b_integrate.py \
+  tests/integration/test_tech_api_flow.py \
+  tests/integration/test_tech_durability.py
+cd ../frontend && npm run lint && npm run test -- --run && npm run build
+# Depuis la racine (après build) :
+#   ./scripts/devcom_start.sh demo
+# Smoke réel UI (optionnel, 1 run) : ./scripts/devcom_start.sh real — lancé par Jérôme
+```
