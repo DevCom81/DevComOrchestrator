@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "default_effect": "deny",
   "tools_enabled": false,
   "actions": [
@@ -44,6 +44,36 @@
       "effect": "allow",
       "permission_class": "PROPOSE",
       "description": "Enregistrer un choix humain de proposition (sans GO d'implémentation)"
+    },
+    {
+      "id": "cursor.plan.edit",
+      "effect": "allow",
+      "permission_class": "MODIFY",
+      "description": "Créer ou éditer un plan Cursor (invalide le GO actif)"
+    },
+    {
+      "id": "cursor.plan.request_go",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Demander un GO d'export lié au hash du paquet"
+    },
+    {
+      "id": "cursor.plan.decide_go",
+      "effect": "allow",
+      "permission_class": "PROPOSE",
+      "description": "Accorder ou refuser un GO Cursor (gouvernance humaine, non récursive)"
+    },
+    {
+      "id": "cursor.plan.export",
+      "effect": "allow",
+      "permission_class": "EXTERNAL",
+      "description": "Créer un export immuable — le backend exige un GO consommé"
+    },
+    {
+      "id": "cursor.return.import",
+      "effect": "allow",
+      "permission_class": "MODIFY",
+      "description": "Importer rapport et diff Cursor comme artefacts non fiables"
     }
   ]
 }

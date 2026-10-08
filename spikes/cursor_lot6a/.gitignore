@@ -1,0 +1,9 @@
+.venv/
+artifacts/
+worktrees/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.log
+fixture/.git/
+COST_SMOKE.filled.md

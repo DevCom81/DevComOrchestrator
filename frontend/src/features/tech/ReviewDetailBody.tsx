@@ -1,12 +1,13 @@
 import type { TechReviewDto } from "./techTypes";
+import { AdrPanel } from "./AdrPanel";
 import { AnalysesPanel } from "./AnalysesPanel";
+import { CursorPlanPanel } from "./CursorPlanPanel";
 import { DecisionPanel } from "./DecisionPanel";
 import { ProposalsPanel } from "./ProposalsPanel";
 import { RealLaunchPanel } from "./RealLaunchPanel";
 import { RealStepsPanel } from "./RealStepsPanel";
 import { ReviewSourcesPanel } from "./ReviewSourcesPanel";
 import { ScenarioSelectPanel } from "./ScenarioSelectPanel";
-import { AdrPanel } from "./AdrPanel";
 
 type Props = {
   review: TechReviewDto;
@@ -53,6 +54,7 @@ export function ReviewDetailBody({
       />
       <DecisionPanel review={review} proposalId={selectedId} />
       <AdrPanel decision={review.decision} adr={review.adr} />
+      <CursorPlanPanel review={review} />
     </>
   );
 }

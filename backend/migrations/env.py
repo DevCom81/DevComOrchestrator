@@ -6,9 +6,13 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from devcom.bootstrap.settings import get_settings
+from devcom.modules.approvals.adapters import sqlalchemy_models as _approval_models  # noqa: F401
 from devcom.modules.billing.adapters import sqlalchemy_models as _billing_models  # noqa: F401
 from devcom.modules.missions.adapters import sqlalchemy_models as _mission_models  # noqa: F401
 from devcom.modules.missions.tech.adapters import sqlalchemy_models as _tech_models  # noqa: F401
+from devcom.modules.missions.tech.cursor.adapters import (
+    sqlalchemy_models as _cursor_models,  # noqa: F401
+)
 from devcom.modules.projects.adapters import sqlalchemy_models as _project_models  # noqa: F401
 from devcom.modules.projects.adapters import code_context_models as _code_ctx_models  # noqa: F401
 

@@ -170,8 +170,14 @@ Une approbation lie action, cible, contenu exact, hash, version, durée de valid
 7. Présentation A/B/C quand trois alternatives crédibles existent ; une ou deux sinon. Ne jamais fabriquer une option pour remplir l'écran.
 8. Choix humain ; création de l'ADR et du plan d'implémentation.
 9. Prévisualisation exacte du paquet Cursor ; modification ou annulation possible.
-10. GO distinct ; export manuel utilisable dès V1. Adapter automatisé uniquement après vérification des capacités réelles de Cursor.
-11. Import du diff/rapport de Cursor, revue spécialisée, corrections et validation humaine.
+10. GO distinct lié au hash du paquet. Export/import manuel conservés comme **dépannage**.
+11. **Liaison réelle obligatoire en V1 TECH** (sous-lots 6A preuve, 6B adapter) :
+    orchestrateur → invocation Cursor (SDK documenté) → code dans espace isolé →
+    récupération automatique des changements (suivis, indexés, fichiers nouveaux) →
+    retour rattaché à l’export → validations locales autorisées (commande, exit code, logs) →
+    revue spécialisée et validation humaine.
+    Un blocage documenté ne remplace pas cette capacité. Aucun adapter de production
+    avant la preuve spike 6A. Aucun `send` automatique après interruption.
 
 Cyber peut signaler un risque critique ; une politique déterministe place alors la proposition en état bloqué. L'agent ne dispose pas d'un veto autonome général. L'utilisateur voit le motif, les preuves et les conditions de levée ; toute dérogation explicite est auditée.
 
@@ -291,23 +297,27 @@ Chaque tranche inclut domaine, cas d'usage, persistance/migrations si utiles, AP
 | 3 | Budget et premier fournisseur IA réel | Réservation concurrente, refus au plafond, résultat réel et coût |
 | 4 | Contexte code local vérifiable pour TECH | Root lecture seule, preview figé, snapshot immuable, sources de revue |
 | 5 | TECH durable, événements, SSE et polling | Interruption vs incertitude ; 0 LLM sur GET/SSE ; liste projet |
-| 6 | Plan Cursor, GO séparé, export et retour de diff | Choix sans modification du code ; revue de l'implémentation importée |
+| 6 | Plan Cursor, GO, export/import (fondation manuelle) | Paquet hashé ; GO ; dépannage manuel |
+| 6A | Spike liaison Cursor SDK (preuve) | Invoke → code fixture → capture complète → retour + validation locale |
+| 6B | Adapter Cursor intégré (après 6A) | UI invoke/suivi/cancel ; budget ; manuel en secours |
 | 7 | MAIL quotidien sur un compte réel | Lire, classer, préparer puis envoyer uniquement après GO |
 | 8 | SALES réel, sources et relais MAIL | Prospect sourcé, dossier, brouillon, réponse rattachée |
 | 9 | SOCIAL quotidien | Historique, variantes, retouche, version finale et export/publication disponible |
 | 10 | Sauvegarde, restauration, installation | Cycle backup/restore ; README clone neuf |
 | 11 | Stabilisation et démonstration publique V1 | Scénario multi-équipes sans secrets ; gate V1 |
 
-Numérotation de référence : `docs/ROADMAP_V1.md` (12 lots 0–11). Les lots ≥ 6 restent des propositions jusqu’à GO.
+Numérotation de référence : `docs/ROADMAP_V1.md` (12 lots 0–11 + sous-lots 6A/6B).
+La fondation LOT 6 est livrée ; 6A/6B et les lots ≥ 7 exigent un GO avant code de production.
+Le LOT 7 (MAIL) ne commence pas avant la preuve spike 6A.
 
 Le lot 3 active les appels payants seulement après validation des garde-fous. Chaque lot est subdivisé si plusieurs règles exigent des validations séparées. L'ordre peut être ajusté par décision explicite, sans retirer une condition de livraison.
 
 ## 14. Définition de terminé
 
-La V1 est livrée quand TECH réel, MAIL connecté, SALES sourcé et SOCIAL utilisable fonctionnent depuis le même HQ ; mémoire, coûts, décisions et historiques survivent au redémarrage ; les actions engageantes exigent leur GO ; les incidents sont compréhensibles et récupérables ; la sauvegarde/restauration est éprouvée ; la démo sans secrets est reproductible depuis un clone neuf.
+La V1 est livrée quand TECH réel (y compris **liaison Cursor réelle** 6A/6B), MAIL connecté, SALES sourcé et SOCIAL utilisable fonctionnent depuis le même HQ ; mémoire, coûts, décisions et historiques survivent au redémarrage ; les actions engageantes exigent leur GO ; les incidents sont compréhensibles et récupérables ; la sauvegarde/restauration est éprouvée ; la démo sans secrets est reproductible depuis un clone neuf.
 
 Les validations build/tests sont lancées manuellement par Jérôme. La CI peut être configurée mais n'est jamais utilisée pour contourner ce choix. README, ADR, contrat des agents, captures fictives et scénario de démonstration rendent les compétences visibles sans exposer les projets clients.
 
 ## 15. Décisions à confirmer avant les lots concernés
 
-Nom définitif et licence publique ; fournisseur/modèle du premier appel réel ; compte/protocole mail ; moteur de recherche et plafond associé ; capacités d'intégration Cursor et LinkedIn. Le périmètre filesystem local (root attaché, exclusions, snapshot) est tranché au LOT 4 (ADR 0005). Ces autres inconnues ne bloquent pas la conception ni la démo, mais aucune intégration réelle n'est inventée pour les remplacer.
+Nom définitif et licence publique ; fournisseur/modèle du premier appel réel ; compte/protocole mail ; moteur de recherche et plafond associé ; capacités LinkedIn. Le périmètre filesystem local (root attaché, exclusions, snapshot) est tranché au LOT 4 (ADR 0005). La faisabilité Cursor SDK est tranchée au LOT 6A (ADR 0008) : liaison réelle obligatoire pour V1 TECH ; manuel = dépannage. Aucune intégration réelle n'est inventée pour remplacer une capacité manquante.

@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "canon": "cursor_package_canon_v1",
+  "verified_at": "2026-10-07",
+  "markdown_sections": [
+    "objectif",
+    "perimetre",
+    "exclusions",
+    "contraintes_architecture",
+    "criteres_acceptation",
+    "validations_attendues"
+  ],
+  "hash_rules": [
+    "Normalize markdown to UTF-8 with LF newlines only, no trailing NULs.",
+    "Approved metadata JSON: sorted keys, separators comma+colon, ensure_ascii false, no content_hash field.",
+    "content_hash = sha256(markdown_utf8 + 0x0A + '---' + 0x0A + metadata_json_utf8).",
+    "Manifest shown in preview includes content_hash after computation — hash input never includes content_hash.",
+    "Export uses the exact frozen UTF-8 bytes approved — no further normalization."
+  ],
+  "bounds": {
+    "report_max_bytes": 204800,
+    "diff_max_bytes": 1048576,
+    "go_ttl_hours": 24
+  }
+}

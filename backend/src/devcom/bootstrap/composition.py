@@ -8,6 +8,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from devcom.bootstrap.code_context_wiring import CodeContextServices, build_code_context_services
+from devcom.bootstrap.cursor_wiring import CursorServices, build_cursor_services
 from devcom.bootstrap.settings import Settings
 from devcom.bootstrap.tech_wiring import TechServices, build_tech_services
 from devcom.modules.agents.adapters.static_agent_catalog import StaticAgentCatalog
@@ -103,6 +104,7 @@ class ApplicationContainer:
     step_store: SqlAlchemyStepStore
     openai_key_configured: bool
     llm: LlmCompletionPort
+    cursor: CursorServices
 
 
 def build_engine(database_path: Path) -> Engine:
@@ -145,6 +147,15 @@ def build_container(settings: Settings) -> ApplicationContainer:
         clock,
         code_snapshots=code_ctx.code_snapshot_port,
     )
+    cursor = build_cursor_services(
+        sessions=sessions,
+        data_dir=settings.data_dir,
+        reviews=tech.tech_repository,
+        create_review=tech.create_tech_review,
+        policy=policy,
+        clock=clock,
+        code_snapshots=code_ctx.code_snapshot_port,
+    )
     return _container(
         settings,
         engine,
@@ -158,6 +169,7 @@ def build_container(settings: Settings) -> ApplicationContainer:
         clock,
         tech,
         code_ctx,
+        cursor,
     )
 
 
@@ -174,6 +186,7 @@ def _container(
     clock: SystemClock,
     tech: TechServices,
     code_ctx: CodeContextServices,
+    cursor: CursorServices,
 ) -> ApplicationContainer:
     return ApplicationContainer(
         settings=settings,
@@ -212,4 +225,5 @@ def _container(
         step_store=tech.step_store,
         openai_key_configured=tech.openai_key_configured,
         llm=tech.llm,
+        cursor=cursor,
     )

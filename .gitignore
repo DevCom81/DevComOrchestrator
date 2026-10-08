@@ -8,6 +8,14 @@ data/
 logs/
 *.log
 
+# Spike LOT 6A (venv, artefacts, worktrees, logs locaux)
+spikes/cursor_lot6a/.venv/
+spikes/cursor_lot6a/artifacts/
+spikes/cursor_lot6a/worktrees/
+spikes/cursor_lot6a/fixture/.git/
+spikes/cursor_lot6a/**/*.log
+spikes/cursor_lot6a/.pytest_cache/
+
 # Python
 backend/.venv/
 backend/**/__pycache__/

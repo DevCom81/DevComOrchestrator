@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "verified_at": "2026-10-07",
+  "description": "Common ApprovalRequest contract for EXTERNAL gated actions (Cursor export, later MAIL).",
+  "fields": {
+    "id": "uuid",
+    "action_id": "string — e.g. cursor.plan.export",
+    "target_id": "uuid of approved resource",
+    "payload_hash": "sha256 hex of approved bytes (no self-referential hash)",
+    "resource_version": "integer resource version at approval time",
+    "status": ["pending", "granted", "refused", "expired", "invalidated", "consumed"],
+    "author": "string",
+    "created_at": "ISO-8601 UTC",
+    "expires_at": "ISO-8601 UTC",
+    "decided_at": "ISO-8601 UTC or null",
+    "consumed_at": "ISO-8601 UTC or null",
+    "idempotency_key": "string or null"
+  },
+  "rules": [
+    "Grant/refuse are human governance commands — not themselves EXTERNAL requiring recursive GO.",
+    "Export/send execution must verify granted non-expired matching hash+version then consume once.",
+    "Content change invalidates pending/granted approvals for that resource version.",
+    "Replayed create with same idempotency key returns the same approval."
+  ]
+}

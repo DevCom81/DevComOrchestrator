@@ -79,6 +79,7 @@ class TechServices:
     llm: LlmCompletionPort
     openai_key_configured: bool
     runner: SupervisedRealRunner
+    tech_repository: TechReviewRepository
 
 
 @dataclass(slots=True)
@@ -230,4 +231,5 @@ def _assemble(
         llm=llm,
         openai_key_configured=key_present,
         runner=runner,
+        tech_repository=core.repo,
     )

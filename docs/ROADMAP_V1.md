@@ -1,9 +1,9 @@
 # Roadmap V1 — DevCom Command Center
 
-Date : 2026-10-07 (révision après validation humaine).  
-Sources : `ARCHITECTURE.md`, `AGENTS.md`, ADR 0001–0006, code LOT 0–5, GO LOT 5.  
-Statut : **trajectoire de référence validée** — 12 lots (0–11).  
-LOT 5 conserve son GO ; **lots 6–11 à valider individuellement avant code**.
+Date : 2026-10-07 (révision LOT 6A/6B — liaison Cursor obligatoire).  
+Sources : `ARCHITECTURE.md`, `AGENTS.md`, ADR 0001–0008, code LOT 0–6, spike 6A.  
+Statut : **trajectoire de référence** — 12 lots (0–11) + sous-lots **6A / 6B**.  
+Lots 7–11 conservés. **Aucun LOT 7 avant preuve spike 6A.**
 
 ## 1. Ligne d’arrivée V1
 
@@ -12,179 +12,170 @@ La V1 est **terminée** quand, depuis le même HQ local (cartes agents + portrai
 1. **TECH** réel (OpenAI) et démo isolée : budget, sources code, historique durable, interruptions honnêtes.
 2. **Décisions TECH** (choix d’option + ADR) distinctes du **GO Cursor** et des **GO d’envoi/publication**.
 3. **Approbations** liées à un payload/version/hash exact ; toute modification pertinente invalide le GO.
-4. **Plan Cursor** : prévisualisation exacte, GO distinct, export manuel, retour de diff/revue.
+4. **Parcours Cursor obligatoire** : fondation LOT 6 (paquet/GO/export/import) **et** liaison réelle
+   orchestrateur → Cursor → code produit → retour automatique → review dans l’HQ.
+   Un blocage documenté **ne remplace pas** cette capacité. Import/export manuel = **dépannage**.
 5. **MAIL / SALES / SOCIAL** : parcours **quotidiens réels** (IA bornée si besoin, budget, permissions, persistance, audit). Les fixtures servent à la **démo publique** ; elles ne valident pas les capacités réelles.
 6. **Mémoire projet** réutilisable et versionnée, **isolée entre projets** ; **budget commun** à toutes les équipes ; **audit** consultable.
 7. **Résolution comptable** des coûts incertains (preuves + historique) — distincte de l’acquittement humain LOT 5.
 8. **Sauvegarde/restauration** cohérente (SQLite + artefacts privés, dont snapshots) dans un `data_dir` isolé de test.
 9. **Installation neuve** démo + vérification des parcours réels déjà validés ; procédure quotidienne documentée.
 
-**Hors V1 (V2/V3)** : `systemd --user`, planification daemon, notifications D-Bus, **QG animé 2D/3D** et évolutions immersives.  
-Les **portraits PNG** et le **HQ actuel** sont **dans la V1** (déjà livrés LOT 0).  
-Aucun ajout hors architecture pour « remplir » la roadmap. **Pas de lot silencieux** : tout changement de découpage est explicite ci-dessous.
+**Hors V1 (V2/V3)** : `systemd --user`, planification daemon, notifications D-Bus, **QG animé 2D/3D**.  
+Les **portraits PNG** et le **HQ actuel** sont **dans la V1**.  
+**Pas de lot silencieux** : tout changement de découpage est explicite ci-dessous.
 
 ## 2. Arbitrages
 
 | Arbitrage | Choix | Motif |
 |---|---|---|
-| Numérotation | 12 lots 0–11 ; LOT 5 = durabilité/SSE ; Cursor = LOT 6 | GO + validation roadmap |
-| Portraits / HQ | V1 (identité visuelle) | Déjà livrés ; distincts du QG animé |
+| Numérotation | 12 lots 0–11 ; Cursor = LOT 6 + **6A/6B** | GO complémentaire 2026-10-07 |
+| Portraits / HQ | V1 | Déjà livrés |
 | QG 2D/3D immersif | Hors V1 | ARCHI V2/V3 |
-| Approbations | Contrat commun, **trois natures** (décision TECH ≠ GO Cursor ≠ GO envoi/publication) | Payload/hash exact |
-| Anthropic/Gemini | Hors V1 | Un fournisseur réel (OpenAI) |
-| Cursor auto | Export manuel V1 | Preuve avant automation |
-| MAIL connecteur | **Choix au plan LOT 7** selon la messagerie effective de Jérôme | Pas d’invention d’API |
-| SALES recherche | **Brave Search API** proposée (voir LOT 8) | Sourcé, borné, daté ; GO LOT 8 confirme |
-| SOCIAL publication | Export manuel V1 ; native optionnelle si API prouvée | ARCHI |
-| Coûts incertains | Ack humain = LOT 5 ; **résolution comptable = LOT 10** | Pas de nouveau lot |
-| Fixtures | Démo publique seulement | Ne valident pas le réel |
+| Approbations | Trois natures (TECH ≠ GO Cursor ≠ envoi/publication) | Payload/hash exact |
+| Anthropic/Gemini | Hors V1 | OpenAI seul fournisseur réel V1 |
+| Cursor | Fondation manuelle LOT 6 ; **liaison SDK obligatoire** (6A preuve, 6B adapter) ; manuel = dépannage | Critère V1 TECH |
+| MAIL connecteur | Choix au plan LOT 7 | Pas d’invention d’API |
+| SALES recherche | Brave Search API proposée (LOT 8) | GO LOT 8 confirme |
+| SOCIAL publication | Export manuel V1 ; native si API prouvée | ARCHI |
+| Coûts incertains | Ack = LOT 5 ; résolution comptable = LOT 10 | Pas de nouveau lot |
+| Fixtures | Démo publique seulement | ≠ preuve du réel |
 
-**Impact découpage** : la résolution comptable reportée du LOT 5 est **absorbée dans le LOT 10** (intégrité d’état + audit). Aucun 13ᵉ lot.
+**Impact découpage** : pas de 13ᵉ lot. **6A/6B** sont des sous-lots de Cursor avant MAIL. Lots 7–11 inchangés.
 
 ## 3. Écarts architecture ↔ implémentation
 
 | Engagement | État |
 |---|---|
-| HQ + portraits PNG | Livré (0) — V1 |
+| HQ + portraits PNG | Livré (0) |
 | Capability / permissions / Dispatcher | Livré (1) |
 | TECH démo | Livré (2) |
 | Budget µEUR, OpenAI réel | Livré (3) |
 | Contexte code / snapshot | Livré (4) |
-| Durabilité / events / SSE | LOT 5 (GO, en validation) |
-| Mémoire projet riche (stack, règles…) | Partielle (projet + snapshot) → à enrichir lots suivants |
-| Budget multi-équipes commun | Fondations LOT 3 ; étendre à MAIL/SALES/SOCIAL |
-| Plan Cursor / GO hash | → LOT 6 |
+| Durabilité / events / SSE | Validé (5) |
+| Plan Cursor / GO hash / export / retour | Fondation livrée (6) — validation manuelle |
+| Liaison Cursor SDK (preuve) | → **LOT 6A** |
+| Adapter Cursor intégré | → **LOT 6B** (après 6A vert) |
 | MAIL / SALES / SOCIAL réels | → LOT 7–9 |
-| Résolution comptable incertains | → LOT 10 (pas LOT 5) |
-| Backup SQLite + artefacts | → LOT 10 |
+| Résolution comptable / backup | → LOT 10 |
 | Gate démo + réel | → LOT 11 |
-| Compte mail / Brave / LinkedIn | À confirmer aux lots concernés (ARCHI §15) |
 
-## 4. Lots 0–4 validés
+## 4. Lots 0–5 validés / 6 fondation
 
-| Lot | Objectif utilisateur | Démo |
+| Lot | Objectif | Statut |
 |---|---|---|
-| **0** | Démarrer localement, HQ + portraits, créer un projet | HQ + projet SQLite |
-| **1** | Routage borné, refus hors compétence | QA refuse spam |
-| **2** | Revue TECH fictive jusqu’à ADR | Scénario démo |
-| **3** | Revue réelle sous enveloppe ≤ 1 € | Smoke OpenAI + FakeLlm |
-| **4** | Attacher code, snapshot, lier à la revue | Preview → freeze → sources |
+| 0–4 | Fondation → code | Validés |
+| 5 | Durabilité / SSE | Validé |
+| **6** | Paquet Cursor, GO, export/import manuel | Livré (fondation) — à valider manuellement |
 
-## 5. LOT 5 — autorisé (durabilité)
+## 5. LOT 6 — Fondation (conservée)
 
-**Objectif** : quitter l’onglet / redémarrer sans faux « en cours » ; 0 LLM sur GET/SSE/refresh.
+- Paquet versionné, preview, GO hash, export MD+manifeste, import rapport/diff, vérif structurelle, revue retour sans run auto.
+- Voir `docs/slices/lot-6.md`, ADR 0007.
+- **Acquis conservés** ; pas de refonte.
 
-**Périmètre** : `interrupted` vs `blocked_uncertain` ; journal ; reconcile idempotent ; budget selon matrice ; SSE + polling ; UI timeline + liste projet ; **acquittement humain** (motif/date) sans libérer la réserve ambiguë ni confirmer un coût.
+## 6. LOT 6A — Spike liaison Cursor (preuve)
 
-**Exclusions** : retry LLM, reprise auto, **résolution comptable fournisseur** (→ LOT 10), Plan Cursor.
+- **Objectif** : prouver bout en bout sur dépôt fixture isolé, sans toucher les projets quotidiens.
+- **Preuve de succès** (obligatoire) :
+  1. paquet approuvé (contrat LOT 6) ;
+  2. invocation Cursor (SDK local) ;
+  3. modification demandée **obtenue** dans le worktree ;
+  4. **ensemble des changements** récupéré automatiquement (suivis, indexés, **fichiers nouveaux**) ;
+  5. retour rattaché au bon `export_id` ;
+  6. validation locale autorisée (commande + exit code + logs) consultable.
+- `finished` / `cancelled` seuls **ne suffisent pas**. Cancel valide seulement le scénario d’arrêt.
+- **Isolation** : worktree/clone ≠ sandbox OS. Politique explicite (fichiers, réseau, commandes, secrets, env minimal). Fixture sans données personnelles. Pas d’env backend complet. Pas d’écriture projets quotidiens. Pas de push.
+- **Crash** : reconnect ≠ nouveau `send` ; aucun `send` auto après interruption ; `resume` local non promis sans preuve ; état **incertain** si récupération impossible.
+- **Budget** : un seul run micro smoke, **sans retry auto**. Avant run payant : modèle, plafond effectif, coût max garanti ou limites de la garantie. Timeout ≠ plafond financier.
+- **Autorisation actuelle** : docs, préparation, doubles, venv épinglé — **aucun run payant** tant que Jérôme n’a pas validé coût/périmètre.
+- Voir `docs/slices/lot-6a.md`, ADR 0008, `spikes/cursor_lot6a/`.
 
-**Critères mémoire/budget déjà applicables** : usage et réservation persistés ; audit d’événements consultable sur la revue ; isolation démo/réel conservée.
+## 7. LOT 6B — Adapter intégré (après 6A)
 
-Voir `docs/slices/lot-5.md`.
+- Port/adapter dans le monolithe ; UI invoke/suivi/cancel ; budget applicatif ; manuel en dépannage.
+- **Interdit** avant preuve 6A verte.
+- Voir `docs/slices/lot-6b.md` (plan ; pas de code prod avant GO 6B).
 
-## 6. Lots 6–11 (propositions — GO individuel requis)
-
-### LOT 6 — Plan Cursor, GO distinct, export, retour
-
-- **Objectif** : prévisualiser le paquet Cursor exact, exporter après GO, importer un rapport/diff.
-- **Approbations** : **GO Cursor** ≠ décision TECH (choix d’option). GO lié au hash du paquet ; édition du plan → GO invalidé.
-- **Périmètre** : ApprovalRequest (payload, version, hash, expiration, auteur) ; preview ; export ; import ; pas de modif auto du dépôt.
-- **Exclusions** : agent Cursor autonome non prouvé ; push git.
-- **Mémoire/budget** : plan versionné rattaché au projet ; aucun appel LLM d’export.
-- **Acceptation** : sans GO → pas d’export ; GO consommé une fois ; hash mismatch refusé.
-- **Démo** : revue → option → preview → GO → fichier.
+## 8. Lots 7–11 (numéros et périmètre conservés)
 
 ### LOT 7 — MAIL quotidien réel
 
-- **Objectif** : traiter les mails du jour sous contrôle humain, **réellement**.
-- **Connecteur** : choisi **au plan du lot** selon la messagerie effective (IMAP / API fournisseur…) ; mode fichier = démo publique seulement.
-- **Périmètre** : lecture/classement/résumé (IA bornée si besoin), brouillon, **GO d’envoi** distinct, audit.
-- **GO envoi** : payload exact = destinataires + compte expéditeur + corps + **pièces jointes** (refs/hash) + version ; modification → invalidation.
-- **Exclusions** : suppression auto spam ; envoi sans GO ; valider le réel via fixtures seules.
-- **Mémoire/budget** : rattachement projet si pertinent ; coûts IA sur **budget commun** ; journal d’audit.
-- **Acceptation** : envoi réel seulement après GO valide ; résultat traçable ; fixtures ≠ preuve du connecteur.
-- **Démo publique** : fichier démo. **Preuve réelle** : envoi borné manuel hors fixtures.
+- **Objectif** : traiter les mails du jour sous contrôle humain, réellement.
+- **Connecteur** : choisi au plan du lot selon la messagerie effective ; mode fichier = démo publique seulement.
+- **Périmètre** : lecture/classement/résumé (IA bornée si besoin), brouillon, GO d’envoi distinct, audit.
+- **GO envoi** : destinataires + compte + corps + pièces (refs/hash) + version ; modification → invalidation.
+- **Exclusions** : suppression auto spam ; envoi sans GO ; fixtures seules comme preuve.
+- **Acceptation** : envoi réel seulement après GO valide ; résultat traçable.
+- **Prérequis** : preuve spike LOT 6A avant de démarrer ce lot.
 
 ### LOT 8 — SALES réel
 
-- **Objectif** : qualifier un prospect **sourcé** et préparer un contact.
-- **Recherche proposée** : **Brave Search API** (requêtes web bornées, URLs + dates persistées).
-  - Limites : quotas/plafond budget ; snippets ≠ identité prouvée ; pas de scraping LinkedIn ; pas d’e-mail inventé ; dédoublonnage obligatoire.
-  - Confirmation compte/tarif/plafond au **GO LOT 8** (peut être remplacé si preuve d’un autre moteur équivalent).
-- **Périmètre** : critères, recherches datées, dossier, brouillon, **relais MAIL** (GO envoi = LOT 7).
-- **Exclusions** : envoi direct SALES ; identité sans preuve ; fixtures comme seule validation.
-- **Mémoire/budget** : fiches isolées par projet ; coûts recherche+IA sur budget commun ; audit.
+- **Objectif** : qualifier un prospect sourcé et préparer un contact.
+- **Recherche proposée** : Brave Search API (bornée, URLs + dates). Confirmation au GO LOT 8.
+- **Périmètre** : critères, recherches datées, dossier, brouillon, relais MAIL (GO = LOT 7).
+- **Exclusions** : envoi direct SALES ; identité sans preuve ; fixtures seules.
 - **Acceptation** : chaque fiche a source+date ; pas d’envoi hors GO MAIL.
-- **Démo publique** : prospect fictif. **Preuve réelle** : ≥ 1 recherche Brave bornée + dossier.
 
 ### LOT 9 — SOCIAL
 
 - **Objectif** : préparer la publication du jour.
-- **Périmètre** : idées, variantes distinctes, version choisie, calendrier ; **export/copier manuel** (accepté V1) ; publication native **optionnelle** si API réelle prouvée.
-- **GO publication** (si native) : payload versionné/hash ; sinon statut « prêt à publier manuellement » — jamais de faux succès.
+- **Périmètre** : idées, variantes, version choisie, calendrier ; export/copier manuel (V1) ; native optionnelle si API prouvée.
 - **Exclusions** : faux succès ; fixtures seules comme preuve d’un connecteur natif.
-- **Mémoire/budget** : historique par projet ; IA bornée sur budget commun.
 - **Acceptation** : variantes non clones ; export utilisable.
-- **Démo** : 2 variantes → export. Preuve native seulement si API validée.
 
 ### LOT 10 — Sauvegarde, restauration, résolution comptable, installation
 
-- **Objectif** : ne pas perdre l’état ; clore les incertitudes budgétaires avec **preuves**.
-- **Backup** : ensemble cohérent = **SQLite + artefacts privés** (dont contenus des snapshots code).
-- **Restore** : dans un **`data_dir` distinct et isolé** — **sans** effacer les données quotidiennes.
-- **Secrets** : exclus du backup versionné / non exportés en clair ; procédure documentée (références credentials, pas les secrets).
-- **Exécutions interrompues restaurées** : après restore, même logique que reconcile LOT 5 (`interrupted` / `blocked_uncertain`) ; pas de reprise LLM automatique ; réserves ambiguës conservées jusqu’à résolution.
-- **Résolution comptable** (report LOT 5) : workflow distinct de l’ack humain ; preuves (export usage / facture / note) ; historique ; passage incertain → confirmé ou soldé documenté ; **aucun** « pris en compte » seul.
-- **Exclusions** : cloud sync ; multi-machine magique.
-- **Acceptation** : backup → restore isolé → projets/revues/snapshots/budgets OK ; ≥ 1 résolution d’incertain avec preuve.
-- **Démo** : cycle sur machine locale.
+- **Objectif** : ne pas perdre l’état ; clore les incertitudes budgétaires avec preuves.
+- **Backup** : SQLite + artefacts privés (dont snapshots).
+- **Restore** : `data_dir` distinct — sans effacer les données quotidiennes.
+- **Secrets** : exclus du backup versionné.
+- **Résolution comptable** : distincte de l’ack LOT 5 ; preuves ; aucun « pris en compte » seul.
+- **Acceptation** : backup → restore isolé OK ; ≥ 1 résolution d’incertain avec preuve.
 
 ### LOT 11 — Stabilisation et démonstration publique V1
 
 - **Objectif** : dépôt public démontrable ; gate V1.
-- **Périmètre** :
-  - installation **neuve en démo** (fixtures) bout-en-bout ;
-  - **relecture** des parcours réels déjà validés (TECH, MAIL, SALES, SOCIAL) **sans répéter inutilement** les appels payants (captures, journaux, checklist) ;
-  - limites restantes documentées ;
-  - **procédure quotidienne de démarrage** (README) ;
-  - audit consultable ; licence/nom si Jérôme tranche.
-- **Exclusions** : données personnelles ; secrets ; V2/V3 ; re-smoke payant systématique.
-- **Acceptation** : checklist §8 ; clone neuf démo OK ; preuves réels archivées sans nouveaux débits inutiles.
-- **Démo** : script/doc de reproduction publique.
+- **Périmètre** : install neuve démo ; relecture parcours réels sans débits inutiles ; procédure quotidienne ; limites documentées.
+- **Exclusions** : données personnelles ; secrets ; V2/V3.
+- **Acceptation** : checklist §10 ; clone neuf démo OK.
 
-## 7. Tableau synthétique
+## 9. Tableau synthétique
 
 | # | Statut | Thème |
 |---:|---|---|
-| 0–4 | Validés | Fondation → code (HQ + portraits inclus) |
-| 5 | GO | Durabilité / events / SSE |
-| 6 | À valider | Cursor / GO hash / export |
-| 7 | À valider | MAIL réel + GO envoi |
-| 8 | À valider | SALES + Brave Search (proposé) |
-| 9 | À valider | SOCIAL export (+ native opt.) |
-| 10 | À valider | Backup/restore + résolution comptable |
-| 11 | À valider | Gate V1 + démarrage quotidien |
+| 0–4 | Validés | Fondation → code |
+| 5 | Validé | Durabilité / SSE |
+| 6 | Fondation livrée | Paquet / GO / export / retour |
+| **6A** | GO préparation | Spike liaison Cursor (preuve) |
+| **6B** | Après 6A | Adapter Cursor intégré |
+| 7 | À valider | MAIL réel |
+| 8 | À valider | SALES + Brave |
+| 9 | À valider | SOCIAL |
+| 10 | À valider | Backup + comptable |
+| 11 | À valider | Gate V1 |
 
-**Total de référence : 12 lots (0–11).**
+**Total : 12 lots (0–11) + sous-lots 6A/6B.**
 
-## 8. Définition vérifiable « V1 terminée »
-
-Cocher dans `docs/slices/v1-gate.md` (créé au LOT 11) :
+## 10. Définition vérifiable « V1 terminée »
 
 - [ ] HQ + portraits ; TECH démo + réel durable
-- [ ] Décision TECH ≠ GO Cursor ≠ GO envoi/publication ; hash respectés
-- [ ] MAIL réel + mode fichier démo (fixtures ≠ preuve réelle)
-- [ ] SALES sourcé (Brave ou équivalent GO) + relais MAIL
-- [ ] SOCIAL exportable ; native seulement si prouvée
-- [ ] Mémoire isolée par projet ; budget commun ; audit consultable
-- [ ] Résolution comptable des incertains avec preuves
-- [ ] Backup/restore isolé (SQLite + snapshots) ; secrets hors backup
-- [ ] Install neuve démo + preuves réels sans débits inutiles
-- [ ] Procédure quotidienne + limites documentées
-- [ ] Aucun item V2/V3 requis (pas de QG animé)
+- [ ] Décision TECH ≠ GO Cursor ≠ GO envoi/publication
+- [ ] **Liaison Cursor réelle** (6A preuve + 6B intégré) : invoke → code → retour auto → review
+- [ ] Manuel export/import = dépannage uniquement
+- [ ] MAIL réel + mode fichier démo
+- [ ] SALES sourcé + relais MAIL
+- [ ] SOCIAL exportable ; native si prouvée
+- [ ] Mémoire isolée ; budget commun ; audit
+- [ ] Résolution comptable des incertains
+- [ ] Backup/restore isolé ; secrets hors backup
+- [ ] Install neuve démo + preuves sans débits inutiles
+- [ ] Procédure quotidienne ; aucun item V2/V3 requis
 
-## 9. Prochaines étapes
+## 11. Prochaines étapes
 
-1. ~~Valider la roadmap~~ — **fait**.
-2. Terminer / valider le **LOT 5** (GO acquis).
-3. Aucun lot ≥ 6 sans **nouveau GO** explicite.
+1. Valider manuellement la fondation **LOT 6** (si pas déjà fait).
+2. Exécuter la préparation **6A** (venv, doubles) — commandes dans `docs/slices/lot-6a.md`.
+3. Jérôme lance le **premier run réel** après présentation coût + périmètre.
+4. Si 6A vert → plan détaillé + GO **6B**.
+5. **Pas de LOT 7** avant preuve 6A.
